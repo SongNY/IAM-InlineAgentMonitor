@@ -7,7 +7,7 @@ name = "agent-iam"
 version = "0.1.0a0"
 description = "Self-supervised trace anomaly detection for LLM agents at sub-2B scale"
 readme = "README.md"
-authors = [{ name = "Songningyu Zheng" }]
+authors = [{ name = "The IAM Authors" }]
 license = { text = "Apache-2.0" }
 requires-python = ">=3.10"
 keywords = ["llm-agents", "agent-safety", "prompt-injection", "anomaly-detection", "runtime-monitoring"]

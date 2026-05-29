@@ -13,7 +13,7 @@ This script reads cases-*/*.json and emits a Python module of
 
 Usage:
     python scripts/pull_agent3sigma.py \\
-        --src /Users/songningyu/claude/agent3sigma-sweep \\
+        --src /path/to/agent3sigma-sweep \\
         --out agent_iam/data/generate/scenarios/agent3sigma_sweep.py
 """
 

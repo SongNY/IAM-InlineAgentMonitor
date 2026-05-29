@@ -356,9 +356,9 @@ tests/                   # unit tests (canonical rendering, eval metrics)
 ## Citation
 
 ```bibtex
-@misc{zheng2026iam,
+@misc{iam2026,
   title  = {IAM: Online Mid-Trace Anomaly Detection for LLM Agents at Sub-2B Scale},
-  author = {Zheng, Songningyu},
+  author = {The IAM Authors},
   year   = {2026},
   note   = {arXiv:TBD}
 }
@@ -366,5 +366,5 @@ tests/                   # unit tests (canonical rendering, eval metrics)
 
 ## License
 
-Apache 2.0 — see [LICENSE](LICENSE). Copyright 2026 Songningyu Zheng. The training data is
+Apache 2.0 — see [LICENSE](LICENSE). Copyright 2026 The IAM Authors. The training data is
 a derivative dataset; each external component retains its original license.
