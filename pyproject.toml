@@ -1,0 +1,90 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "traceguard"
+version = "0.1.0a0"
+description = "Self-supervised trace anomaly detection for LLM agents at sub-2B scale"
+readme = "README.md"
+authors = [{ name = "Songningyu Zheng" }]
+license = { text = "Apache-2.0" }
+requires-python = ">=3.10"
+keywords = ["llm-agents", "agent-safety", "prompt-injection", "anomaly-detection", "runtime-monitoring"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Security",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+
+dependencies = [
+    "transformers>=4.46",
+    "torch>=2.2",
+    "datasets>=2.20",
+    "numpy>=1.26",
+    "pydantic>=2.6",
+    "rich>=13",
+    "click>=8.1",
+]
+
+[project.optional-dependencies]
+train = [
+    "peft>=0.11",
+    "trl>=0.10",
+    "bitsandbytes>=0.43",
+    "accelerate>=0.30",
+]
+eval = [
+    "scikit-learn>=1.4",
+    "matplotlib>=3.8",
+]
+runtime = [
+    "fastapi>=0.110",
+    "uvicorn>=0.27",
+]
+dev = ["pytest>=8", "ruff>=0.5", "ipykernel"]
+all = [
+    "peft>=0.11",
+    "trl>=0.10",
+    "bitsandbytes>=0.43",
+    "accelerate>=0.30",
+    "scikit-learn>=1.4",
+    "matplotlib>=3.8",
+    "fastapi>=0.110",
+    "uvicorn>=0.27",
+    "pytest>=8",
+    "ruff>=0.5",
+    "ipykernel",
+]
+
+[project.urls]
+Homepage = "https://github.com/songningyu/traceguard"
+Repository = "https://github.com/songningyu/traceguard"
+Issues = "https://github.com/songningyu/traceguard/issues"
+Changelog = "https://github.com/songningyu/traceguard/blob/main/CHANGELOG.md"
+Paper = "https://arxiv.org/abs/TBD"
+
+[project.scripts]
+traceguard = "traceguard.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["traceguard*"]
+
+[tool.setuptools.package-data]
+traceguard = ["py.typed"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "W", "UP", "B"]

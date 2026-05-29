@@ -1,0 +1,31 @@
+# ---- Python ----
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ipynb_checkpoints/
+build/
+dist/
+
+# ---- OS ----
+.DS_Store
+
+# ---- Claude Code agent worktrees ----
+.claude/
+
+# ---- Datasets (1.6 GB; tracked out-of-band, not in git) ----
+# Leading slash anchors to repo root so the traceguard/data/ source
+# package (scenario generators etc.) is NOT ignored.
+/data/
+
+# ---- Experiment run outputs ----
+/runs/
+/runs-*/
+
+# ---- Logs ----
+*.log
+logs-*/
+
+# ---- Red-team outputs (keep only *.yaml configs, see !rule below) ----
+promptfoo-redteam/*
+!promptfoo-redteam/*.yaml

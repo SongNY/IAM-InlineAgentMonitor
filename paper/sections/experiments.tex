@@ -1,0 +1,163 @@
+\section{Experiments}
+\label{sec:experiments}
+
+\textbf{All numbers in this section are preliminary, from a single v0.19
+training run.} They are reported to show that the learned verdict head clears
+the relevant baselines by a wide margin, not as final benchmark figures.
+
+\subsection{Setup and metrics}
+
+\paragraph{Evaluation set.}
+We evaluate on a held-out set of $269$ trajectories: $130$ attacks and $139$
+benign, drawn from multiple sources and frameworks.
+
+\paragraph{Metrics.}
+We frame metrics around deployment semantics rather than classification
+(Section~\ref{sec:method:check}):
+\begin{itemize}[leftmargin=1.4em,itemsep=0.1em]
+  \item \textbf{Prevention Rate (PR):} on attack traces, the fraction flagged
+        \emph{at or before} the anomaly step --- i.e. in time to actually block
+        the harmful action. A flag after the anomaly step is a miss.
+  \item \textbf{False-Stop Rate (FSR):} on benign traces, the fraction flagged
+        at \emph{any} step.
+  \item \textbf{PR@FSR$\le$1\%} (headline): the best achievable prevention rate
+        subject to at most a $1\%$ false-stop rate, i.e. ``under one false stop
+        per hundred benign runs, how many attacks do we prevent?'' We also
+        report PR@FSR$\le$5\%.
+  \item \textbf{AUROC} (reference) over trace-level scores, and
+        \textbf{reason cosine similarity} between the decoded \texttt{<reason>}
+        and the gold reason on correctly-stopped attacks.
+\end{itemize}
+
+\paragraph{Baselines.}
+We compare against two intentionally simple scorers run through the same
+harness: a \emph{keyword/regex} baseline (hand-written patterns on tool
+arguments and observations) and an \emph{action-perplexity} baseline (raw
+next-token perplexity over the proposed action span, using the base model
+without fine-tuning). Both set a floor for ``did the learned head buy us
+anything.''
+
+\subsection{Main results}
+
+\begin{table}[t]
+  \centering
+  \small
+  \begin{tabular}{lccc}
+    \toprule
+    Method & PR@FSR$\le$1\% & PR@FSR$\le$5\% & AUROC \\
+    \midrule
+    Keyword / regex baseline      & $\approx 0.115$ & \TODO{n/a} & $\approx 0.56$ \\
+    Action-perplexity baseline    & $\approx 0.08$  & \TODO{n/a} & \TODO{n/a} \\
+    \textbf{TraceGuard (verdict head)} & $\mathbf{\approx 0.89}$ & $\mathbf{\approx 0.95\text{--}1.0}$ & $\mathbf{\approx 0.997}$ \\
+    \bottomrule
+  \end{tabular}
+  \caption{Preliminary v0.19 results on the 269-trace evaluation set
+  ($130$ attacks / $139$ benign). The headline PR@FSR=1\% operating point uses
+  a $P(\textsc{STOP})$ threshold $\tau\approx 0.92$ at the best epoch. Baselines
+  are run through the identical harness. % TODO: fill baseline PR@FSR=5\% and action-perplexity AUROC.
+  }
+  \label{tab:main}
+\end{table}
+
+Table~\ref{tab:main} summarizes the main result. At an operating point of
+$P(\textsc{STOP})$ threshold $\tau\approx 0.92$, TraceGuard reaches
+\textbf{PR@FSR=1\% $\approx 0.89$}; relaxing the constraint to FSR$\le$5\%
+raises prevention to $\approx 0.95\text{--}1.0$. Trace-level separation is very
+strong (\textbf{AUROC $\approx 0.997$}). Both baselines are far below: the
+keyword baseline reaches PR@FSR=1\% $\approx 0.115$ (AUROC $\approx 0.56$, near
+chance) and the action-perplexity baseline $\approx 0.08$. The learned,
+densely-supervised verdict head thus improves prevention at the $1\%$ false-stop
+operating point by roughly $8\times$ over the strongest baseline.
+
+\paragraph{Per-position behavior.}
+Decomposing by query position, the true-positive rate at the anomaly step
+(attack-stop@anomaly) is $\approx 0.95\text{--}0.99$, while the in-trace
+over-flag rate --- the model stopping at a \emph{safe} prefix step of an attack
+trace (attack-safe) --- is only $\approx 0.02\text{--}0.03$. The dense
+\textsc{OK} supervision is doing its job: the model stops at the right step
+without flagging the benign lead-up.
+
+\paragraph{Reason quality.}
+On correctly-stopped attacks, the decoded \texttt{<reason>} attains
+$\approx 0.92$ cosine similarity to the gold reason. We observe this degrades
+slightly with more training epochs, consistent with mild overfitting on the
+reason field.
+
+\subsection{Per-family detection}
+\label{sec:experiments:family}
+
+Detection is essentially saturated ($\approx 1.0$) on the \emph{shaped} attack
+families that dominate training --- exfiltration, email-injection, SSRF, shell
+injection, persistence, and the sophisticated indirect-injection family
+(\texttt{iif*}). It is weaker on families that are underrepresented or stylistically
+distinct in our data, notably ATBench-native, MCP, and DNS-exfiltration
+(\texttt{dnsx}) families. This pattern --- strong where supervision is dense,
+weak where it is sparse --- is the clearest signal of where additional training
+data is needed. % TODO: per-family detection table with counts; only qualitative summary available for v0.19.
+
+\subsection{The bottleneck: ATBench benign false stops}
+\label{sec:experiments:bottleneck}
+
+The most important honest finding concerns \emph{where} the residual false
+stops come from. The overall benign false-stop rate is $\approx 0.022$, but it
+is \emph{not} spread across sources: it is concentrated almost entirely in a
+single source. ATBench benign traces have an FSR of $\approx 0.065$, while
+\emph{every other benign source has an FSR of $\approx 0.000$}. In other words,
+the FSR floor --- and the binding constraint at the PR@FSR=1\% operating point
+--- is a handful of ATBench benign traces that the model over-flags. Reducing
+the false-stop rate further is therefore primarily a data problem on this one
+source (more / cleaner ATBench-style benign coverage), not a change to the
+method. We report this prominently because it, rather than attack recall, is the
+current limiting factor for tightening the operating point.
+
+\subsection{Red-team findings (context for positioning)}
+\label{sec:experiments:redteam}
+
+The following qualitative findings motivate the ``complement, not replacement''
+positioning of Section~\ref{sec:intro}; they characterize \emph{when} a runtime
+monitor is needed. % TODO: these are red-team probing observations from earlier (v0.2/v0.3) runs, reported qualitatively; not part of the 269-trace quantitative eval.
+
+\begin{itemize}[leftmargin=1.4em,itemsep=0.15em]
+  \item \textbf{F1 --- Aligned backends are robust.} A production-aligned model
+        (Claude Code) resisted $0/65$ common agent attacks (indirect injection,
+        exfiltration, SSRF, shell injection), with or without an added safety
+        system prompt. A monitor is largely \emph{unnecessary} for such
+        deployments.
+  \item \textbf{F2 --- Sophistication tiers matter.} On a weakly-aligned
+        backend, lazy indirect injection (HTML comment, dev note) had a
+        $\approx 0\%$ bite rate, but sophisticated patterns
+        (false-completion, multi-step protocol, persona override) reached
+        $\approx 78\%$. A single ``indirect-injection rate'' is misleading;
+        benchmarks should stratify by tier.
+  \item \textbf{F3 --- Temperature is an attacker dimension.} Multi-step
+        injection bite rate rose from $\approx 0\%$ at temperature $0$ to
+        $\approx 50\%$ at $0.3$; single-step attacks (SSRF, direct exfil) were
+        temperature-invariant. Greedy-decoding red teams under-report real
+        feasibility.
+  \item \textbf{F4 --- LLM-designed attacks beat hand-authored.}
+        LLM-synthesized scenarios (e.g. sandbox-escape, output-manipulation)
+        reached $\approx 83\text{--}100\%$ success in several families, above
+        the $\approx 50\%$ of comparable hand-authored scenarios.
+  \item \textbf{F5 --- CVE patterns replicate.} A reproduction of a zero-click
+        email-injection pattern (CVE-2025-32711) had a $\approx 100\%$ bite rate
+        on a weakly-aligned backend; a PR-description RCE pattern
+        (CVE-2025-53773) reached $\approx 44\%$.
+  \item \textbf{F6 --- Prompt extraction is hard.} Direct attempts to leak a
+        sentinel-laden system prompt failed ($0/25$); even weakly-aligned models
+        have specific coverage for system-prompt protection.
+  \item \textbf{F7 --- Canonicalization is feasible.} The same scenarios run
+        across distinct frameworks fold into one canonical schema, and patterns
+        defined over it transfer (Section~\ref{sec:data:canon}).
+  \item \textbf{F8 --- Attack success is 2D.} Attack success is governed jointly
+        by attacker goal and victim alignment: near $0\%$ across goals for a
+        high-alignment backend, but $60\text{--}96\%$ for a medium-alignment one.
+        TraceGuard targets the weakly-aligned cell of this matrix.
+\end{itemize}
+
+\noindent
+\TODO{latency benchmarks (p50/p99 per check on GPU and CPU) --- not yet
+measured.}\quad
+\TODO{quantitative cross-backend transfer (train-on-A / test-on-B) --- not yet
+measured.}\quad
+\TODO{ablations: with/without dense supervision, with/without $W_{\textsc{STOP}}$
+up-weighting, with/without anomaly truncation --- not yet run.}

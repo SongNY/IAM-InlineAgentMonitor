@@ -1,0 +1,54 @@
+\documentclass[11pt]{article}
+
+% ---------------------------------------------------------------------------
+% TraceGuard --- arXiv preprint draft (preliminary v0.19 results)
+% Compiles on a vanilla TeX Live with no custom .sty downloads.
+% Build: make  (pdflatex -> bibtex -> pdflatex x2)
+% ---------------------------------------------------------------------------
+
+\usepackage[margin=1in]{geometry}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage[hidelinks]{hyperref}
+\usepackage{xcolor}
+\usepackage{enumitem}
+
+% natbib for author-year citations against references.bib
+\usepackage[round]{natbib}
+
+% Lightweight TODO macro so unfinished cells are visually obvious in the PDF.
+\newcommand{\TODO}[1]{\textbf{\textcolor{red}{[TODO: #1]}}}
+
+\title{TraceGuard: Online Per-Step Verdicts for Mid-Trajectory\\
+Intervention in LLM Agent Tool Use}
+
+\author{%
+  TraceGuard Authors\thanks{Correspondence: \texttt{anon@example.com}. % TODO verify author block
+  Preliminary draft; all quantitative results are from a single v0.19 run.}\\
+  \textit{Affiliation}\\ % TODO verify affiliation
+}
+
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+\input{sections/abstract}
+\end{abstract}
+
+\input{sections/introduction}
+\input{sections/related_work}
+\input{sections/method}
+\input{sections/data}
+\input{sections/experiments}
+\input{sections/limitations}
+\input{sections/conclusion}
+
+\bibliographystyle{plainnat}
+\bibliography{references}
+
+\end{document}

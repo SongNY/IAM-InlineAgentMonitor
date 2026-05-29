@@ -1,0 +1,78 @@
+\section{Introduction}
+\label{sec:intro}
+
+Tool-using LLM agents now read files, browse the web, run shell commands, and
+send email on a user's behalf. This autonomy is also the attack surface: an
+agent can be coaxed --- by a malicious user, by a poisoned web page, or by an
+instruction smuggled into the output of a tool it called --- into actions that
+leak credentials, destroy data, or escalate privilege. Unlike a single harmful
+generation, an agent failure is a \emph{trajectory}: a sequence of
+thought / action / observation steps in which an early benign-looking step
+(read a config file) sets up a later harmful one (POST it to an external host).
+The dangerous moment is a specific tool call, and once that call executes, the
+damage is done.
+
+\paragraph{The gap: nobody guards the mid-trajectory moment.}
+Most deployed safeguards act at the wrong time or the wrong granularity.
+\emph{Output filters} such as Llama Guard \citep{llamaguard} and WildGuard
+\citep{wildguard} classify a model's final text; they are not built to gate the
+next tool call mid-run. \emph{Post-hoc transcript judges} such as R-Judge
+\citep{rjudge} score a completed trajectory --- useful for offline auditing, but
+by construction they cannot prevent the action that already ran.
+\emph{LLM-as-a-judge} per action would close the timing gap, but a frontier-scale
+judge invoked before every tool call is too slow and too costly to sit in the
+hot path of a live agent. What is missing is a guard that is (i) \emph{online}
+--- it runs before each action and can veto it; (ii) \emph{cheap} --- small
+enough to gate every step; and (iii) \emph{trajectory-aware} --- it scores the
+proposed action in the context of everything that came before.
+
+\paragraph{Contribution.}
+We present \textbf{TraceGuard}, a sub-2B online trajectory monitor that fills
+this gap. Our contributions are:
+\begin{enumerate}[leftmargin=1.4em,itemsep=0.15em]
+  \item \textbf{An online per-step verdict head.} A full fine-tune of
+        Qwen3.5-2B renders the trajectory-so-far plus a proposed action and
+        reads $P(\textsc{STOP})$ from the next-token logits over
+        $\{\textsc{OK},\textsc{WARN},\textsc{STOP}\}$. The monitor's
+        \texttt{check()} call returns a \textsc{STOP} verdict (plus a risk type
+        and a natural-language reason) \emph{before} the action is dispatched,
+        so the executor can halt it (Section~\ref{sec:method}).
+  \item \textbf{Dense per-step verdict supervision.} Rather than a single
+        end-of-trace label, we supervise a verdict slot after \emph{every}
+        decision step --- \textsc{OK} on safe steps, \textsc{STOP} on the
+        anomaly step --- which teaches the model ``do \emph{not} stop here'' as
+        well as ``stop here'' and matches the deployment regime where the
+        monitor decides at every step.
+  \item \textbf{A framework-agnostic canonical schema.} We fold heterogeneous
+        agent event formats into one canonical \texttt{Trajectory}
+        (\texttt{\{steps: [\{role, thought, action, observation\}]\}}) with an
+        ATBench-derived label taxonomy \citep{atbench}, so one model serves
+        multiple frameworks (Claude Code, OpenAI-API ReAct, LangGraph)
+        (Section~\ref{sec:data}).
+  \item \textbf{A deployment-centric operating point.} We report
+        \textbf{Prevention Rate at FSR$\le$1\%} (PR@FSR), which answers the
+        question an operator actually asks: ``If I tolerate at most one false
+        stop per hundred benign runs, what fraction of attacks do I prevent in
+        time?'' (Section~\ref{sec:experiments}).
+\end{enumerate}
+
+\paragraph{Positioning: complement, not replacement.}
+A well-aligned backend already refuses most agent attacks: in our red-team
+probing, a production-aligned model resisted $0/65$ common attack prompts
+across indirect injection, exfiltration, SSRF, and shell injection
+(Section~\ref{sec:experiments}, F1). TraceGuard's value is for the substantial
+fraction of production agents that run on \emph{weakly-aligned} backends, where
+the same attacks succeed at high rates. We therefore frame agent attack success
+as a two-dimensional phenomenon --- attacker goal $\times$ victim alignment ---
+and position TraceGuard as a runtime layer that complements alignment for the
+weakly-aligned regime rather than substituting for it.
+
+On a preliminary 269-trace evaluation set, TraceGuard prevents
+$\approx 89\%$ of attacks in time while false-stopping $\approx 2.2\%$ of
+benign traces overall, and reaches PR@FSR=1\% $\approx 0.89$ at AUROC
+$\approx 0.997$ --- far above a keyword baseline (PR@FSR=1\% $\approx 0.12$)
+and an action-perplexity baseline ($\approx 0.08$). We are explicit about
+limits: the evaluation set is small, results are from a single training run,
+the residual false-stop rate is concentrated almost entirely in one benign
+source, and latency / cross-backend transfer numbers are not yet measured
+(Section~\ref{sec:limitations}).

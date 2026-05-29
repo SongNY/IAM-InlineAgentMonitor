@@ -1,0 +1,23 @@
+\section{Conclusion}
+\label{sec:conclusion}
+
+We introduced TraceGuard, a sub-2B online trajectory monitor that gates an LLM
+agent's tool calls \emph{before} they execute. The core ideas are a per-step
+verdict head that reads $P(\textsc{STOP})$ from next-token logits over
+$\{\textsc{OK},\textsc{WARN},\textsc{STOP}\}$, dense per-step verdict
+supervision that teaches the model both ``stop here'' and ``do not stop here,''
+and a framework-agnostic canonical \texttt{Trajectory} schema that lets one
+model span agent frameworks. Evaluated under a deployment-centric operating
+point, preliminary v0.19 results reach PR@FSR=1\% $\approx 0.89$ (AUROC
+$\approx 0.997$), an order of magnitude above keyword and action-perplexity
+baselines, with the residual false-stop rate concentrated almost entirely in a
+single benign source. We position TraceGuard as a runtime complement to model
+alignment for weakly-aligned agent deployments.
+
+\paragraph{Future work.}
+The immediate priorities follow directly from Section~\ref{sec:limitations}: a
+larger and more balanced evaluation set; ablations and multi-seed runs to
+isolate each design choice; per-check latency measurement; quantitative
+cross-backend transfer; closing the ATBench benign false-stop gap with
+better-covered benign data; and an adaptive-attacker evasion study.
+% TODO: update all results to the final non-preliminary run before submission.

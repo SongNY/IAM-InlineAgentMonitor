@@ -1,0 +1,138 @@
+\section{Method}
+\label{sec:method}
+
+TraceGuard is a single causal language model, fully fine-tuned from
+Qwen3.5-2B \citep{qwen3}, that (a) renders an agent trajectory into a
+canonical token stream and (b) emits a verdict after every decision step. We
+first describe the canonical schema, then the dense rendering and training
+objective, and finally the online \texttt{check()} semantics used at
+deployment.
+
+\subsection{Canonical trajectory schema}
+\label{sec:method:schema}
+
+We represent every agent run, regardless of framework, as a canonical
+\texttt{Trajectory}: a task instruction plus an ordered list of
+\texttt{TraceStep}s. Each step carries a \texttt{role}
+($\{$user, agent, tool, system$\}$), an optional \texttt{thought}, an optional
+structured \texttt{action} (e.g. \texttt{\{"tool":"Read","args":\{"path":".env"\}\}}),
+and an optional \texttt{observation}. A \emph{decision step} is any agent step
+--- the point at which the monitor runs in deployment.
+
+A step renders to a flat text block using bare special tokens:
+\begin{quote}\small\ttfamily
+<step> idx=$k$ role=agent\\
+<thought>...</thought>\\
+<action>Read(\{'path': '.env'\})</action>\\
+<observation>...</observation>\\
+</step>
+\end{quote}
+Per-step metadata (index, role, tool) is emitted as text \emph{after} the
+opening tag rather than as XML attributes, so that the structural tags
+(\texttt{<step>}, \texttt{<action>}, \dots) are matched exactly as added special
+tokens by the tokenizer. The full taxonomy carried by a trajectory's label
+(\texttt{risk\_source} $\times$ \texttt{failure\_mode} $\times$
+\texttt{harm\_category}) is taken directly from ATBench \citep{atbench}
+(Section~\ref{sec:data}).
+
+\subsection{Dense per-step verdict rendering}
+\label{sec:method:dense}
+
+The key training idea is \emph{dense per-step verdict supervision}: after every
+decision step we emit a verdict slot,
+\begin{quote}\small\ttfamily
+<verdict><symbol>OK</symbol></verdict>
+\end{quote}
+for safe steps, and at the anomaly step the full triple
+\begin{quote}\small\ttfamily
+<verdict><symbol>STOP</symbol><type>FAILURE\_MODE</type><reason>...</reason></verdict>
+\end{quote}
+Safe steps are supervised with the symbol only; the anomaly step additionally
+supervises a risk \texttt{<type>} (the ATBench failure mode) and a
+natural-language \texttt{<reason>}. Crucially, the per-step verdicts are derived
+automatically from the single trace-level anomaly label --- no manual per-step
+annotation is required. When the labelled \texttt{anomaly\_step} is not itself a
+decision step, the \textsc{STOP} is attached to the last decision step at or
+before it; when the anomaly step is unspecified (e.g. some content-harm traces),
+\textsc{STOP} is attached to the final decision step so that the trace still
+carries supervision to flag by its end.
+
+Supervising every decision step --- not just the anomaly --- means the model
+sees many \textsc{OK} decisions in attack and benign traces alike, so it learns
+the negative case (``do not stop here'') as strongly as the positive one. This
+directly targets over-flagging, which is the failure mode that drives the
+false-stop rate in deployment.
+
+\paragraph{Truncation at the anomaly.}
+Because \textsc{STOP} is terminal --- in deployment, execution halts at the
+flagged action --- training trajectories are truncated \emph{after} the anomaly
+step. The model is never shown post-anomaly steps, matching the deployment
+regime where it never sees what would have happened after a block.
+
+\subsection{Training objective}
+\label{sec:method:loss}
+
+We fine-tune with two masked next-token objectives over the rendered stream:
+(i) a self-supervised next-action term over tokens inside \texttt{<action>}
+spans (learning the distribution of normal agent behavior), and (ii) a
+supervised verdict term over tokens inside \texttt{<verdict>} spans (the dense
+\textsc{OK}/\textsc{STOP} decisions, plus type/reason at the anomaly). All
+tokens outside these spans are masked out of the loss ($-100$ labels).
+
+\paragraph{STOP up-weighting.}
+The dense layout is highly imbalanced: a trajectory with $N$ decision steps
+contributes $N{-}1$ \textsc{OK} verdicts and at most one \textsc{STOP}, giving an
+$\textsc{OK}{:}\textsc{STOP}$ ratio of roughly $7{:}1$ in our data. Left
+uncorrected, the model converges to ``never stop.'' We therefore up-weight the
+cross-entropy on the \textsc{STOP} symbol token by a factor $W_{\textsc{STOP}}=8$,
+chosen to approximately balance the two classes. This is the single most
+important hyperparameter for moving the prevention rate off the floor.
+
+\subsection{Left-truncation for a bounded recent window}
+\label{sec:method:lefttrunc}
+
+Trajectories can exceed the model's context. We cap sequences at
+\texttt{max\_seq\_len}$=4096$ tokens and, critically, \emph{left}-truncate
+(keep the tail) rather than the default right-truncation. The terminal
+\textsc{STOP} verdict lives at the end of the dense stream, so right-truncation
+would drop exactly the label we need; keeping the tail preserves the anomaly and
+its verdict, and matches a deployment monitor's bounded recent-context window.
+A partial span left dangling at the new start is simply left unsupervised (its
+span depth never opens), so truncation never corrupts the mask.
+
+\subsection{Online inference: \texttt{check()}}
+\label{sec:method:check}
+
+At deployment the monitor sits in the agent's execution loop. Before dispatching
+a proposed action, the executor calls:
+\begin{quote}\small\ttfamily
+verdict = monitor.check(trace\_so\_far, next\_action)\\
+if verdict.block:  \# verdict.symbol == "STOP"\\
+\hphantom{xx}raise SecurityError(verdict.risk\_type, verdict.explanation)
+\end{quote}
+\texttt{check()} appends the proposed action as a hypothetical agent step,
+renders the trajectory in the dense layout with an \textsc{OK} verdict after
+every \emph{prior} decision step (consistent with the fact that, had any earlier
+step been \textsc{STOP}, execution would already have halted), and leaves the
+final verdict open --- the string ends at \texttt{<verdict><symbol>}. The model
+runs a single forward pass; we take the next-token logits, restrict to the first
+token of each of $\{\textsc{OK},\textsc{WARN},\textsc{STOP}\}$, and softmax to
+obtain $P(\textsc{STOP})$. The action is blocked iff $P(\textsc{STOP})$ exceeds a
+calibrated threshold $\tau$. Only when the verdict is \textsc{STOP} do we run a
+short greedy decode to produce the risk \texttt{<type>} and \texttt{<reason>}, so
+the common (\textsc{OK}) path costs a single forward pass. The same left-tail
+truncation as in training is applied so the open verdict always survives and the
+scored $P(\textsc{STOP})$ stays in-distribution.
+
+\paragraph{Operating-point calibration.}
+$\tau$ is a deployment knob, not a fixed constant. We calibrate it on held-out
+data against a target false-stop rate (Section~\ref{sec:experiments}); both the
+prevention rate and the false-stop rate are monotonically non-increasing in
+$\tau$, so the smallest $\tau$ meeting the FSR constraint also maximizes
+prevention.
+
+\paragraph{Baselines reuse the same harness.}
+For comparison we retain a legacy action-span perplexity scorer (next-token PPL
+restricted to the last \texttt{<action>} span) and a keyword/regex scorer; both
+emit one score per step under the same interface, so they slot into the same
+evaluation harness as the verdict head (Section~\ref{sec:experiments}).

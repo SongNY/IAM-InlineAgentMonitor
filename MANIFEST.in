@@ -1,0 +1,11 @@
+include LICENSE
+include README.md
+include CHANGELOG.md
+include traceguard/py.typed
+
+global-exclude *.py[cod]
+global-exclude __pycache__
+prune .pytest_cache
+prune .ipynb_checkpoints
+prune build
+prune dist
