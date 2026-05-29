@@ -68,7 +68,7 @@ def run_smoke(monitor: Any, *, tol: float = 0.05, verbose: bool = True) -> bool:
     t = time.time()
     v_cached = sess.guard({"tool": "Read", "args": {"path": "~/.aws/credentials"}})
     cached_ms = (time.time() - t) * 1e3
-    v_ref = monitor.check(sess.trajectory, next_action={"tool": "Read", "args": {"path": "~/.aws/credentials"}})
+    v_ref = monitor.check(sess.traj, next_action={"tool": "Read", "args": {"path": "~/.aws/credentials"}})
     gap = abs(v_cached.p_stop - v_ref.p_stop)
     log(f"[session] cached p_stop={v_cached.p_stop:.4f} ({cached_ms:.0f}ms) "
         f"vs uncached {v_ref.p_stop:.4f}  gap={gap:.4f}")

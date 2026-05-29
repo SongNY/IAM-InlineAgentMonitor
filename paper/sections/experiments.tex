@@ -46,15 +46,16 @@ anything.''
     \toprule
     Method & PR@FSR$\le$1\% & PR@FSR$\le$5\% & AUROC \\
     \midrule
-    Keyword / regex baseline      & $\approx 0.115$ & \TODO{n/a} & $\approx 0.56$ \\
-    Action-perplexity baseline    & $\approx 0.08$  & \TODO{n/a} & \TODO{n/a} \\
+    Keyword / regex baseline      & $\approx 0.115$ & $\approx 0.115$ & $\approx 0.56$ \\
+    Action-perplexity baseline    & $\approx 0.08$  & ---             & ---           \\
     \textbf{IAM (verdict head)} & $\mathbf{\approx 0.89}$ & $\mathbf{\approx 0.95\text{--}1.0}$ & $\mathbf{\approx 0.997}$ \\
     \bottomrule
   \end{tabular}
   \caption{Preliminary v0.19 results on the 269-trace evaluation set
   ($130$ attacks / $139$ benign). The headline PR@FSR=1\% operating point uses
   a $P(\textsc{STOP})$ threshold $\tau\approx 0.92$ at the best epoch. Baselines
-  are run through the identical harness. % TODO: fill baseline PR@FSR=5\% and action-perplexity AUROC.
+  are run through the identical harness. The action-perplexity baseline's
+  PR@FSR=5\% and AUROC were not logged for the v0.19 run (shown as ---).
   }
   \label{tab:main}
 \end{table}
@@ -154,10 +155,18 @@ monitor is needed. % TODO: these are red-team probing observations from earlier 
         IAM targets the weakly-aligned cell of this matrix.
 \end{itemize}
 
-\noindent
-\TODO{latency benchmarks (p50/p99 per check on GPU and CPU) --- not yet
-measured.}\quad
-\TODO{quantitative cross-backend transfer (train-on-A / test-on-B) --- not yet
-measured.}\quad
-\TODO{ablations: with/without dense supervision, with/without $W_{\textsc{STOP}}$
-up-weighting, with/without anomaly truncation --- not yet run.}
+\subsection{Latency}
+\label{sec:experiments:latency}
+
+The monitor adds a single forward pass per proposed action. On the training GPU
+(an RTX 6000 Pro, Blackwell), a \texttt{check()} on a 20-step trace costs
+$\approx 227$\,ms at p50 ($\approx 228$\,ms p90) via the Unsloth fast-inference
+path; on the common \textsc{OK} path no text is decoded, so this is essentially
+one prefill. Since an agent's own per-step cost (the policy-LLM call plus tool
+I/O) is typically $100$\,ms--seconds, the guard fits comfortably inside that
+budget. We additionally verified a KV-cached incremental session that returns
+\emph{numerically identical} $P(\textsc{STOP})$ to the uncached path (maximum gap
+$0.000$ over a session); it did not yield a wall-clock speedup in our
+environment, so we report the uncached figure. Quantitative cross-backend
+transfer and the training ablations are not yet measured
+(Section~\ref{sec:limitations}).

@@ -82,6 +82,11 @@ class IncrementalSession:
         self._cached_ids: list[int] = []
         self._past: Any = None
 
+    @property
+    def trajectory(self) -> Trajectory:
+        """The running trace (alias for ``traj``; parity with StreamingMonitor)."""
+        return self.traj
+
     # ---- trace accumulation -------------------------------------------------
 
     def _append(self, step: TraceStep) -> None:

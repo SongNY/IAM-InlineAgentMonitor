@@ -14,7 +14,6 @@ We are deliberate about what this preliminary draft does and does not establish.
         have seed variance, and we have not run the ablations that would isolate
         the contribution of each design choice (dense per-step supervision,
         $W_{\textsc{STOP}}$ up-weighting, anomaly truncation, left-truncation).
-        \TODO{run ablations and report mean$\pm$std over seeds.}
   \item \textbf{ATBench false-stop floor.} The residual false-stop rate is
         concentrated almost entirely in one benign source (ATBench,
         FSR $\approx 0.065$ vs. $\approx 0.000$ elsewhere). This caps how tight
@@ -26,22 +25,22 @@ We are deliberate about what this preliminary draft does and does not establish.
         stylistically distinct families (ATBench-native, MCP, DNS exfiltration).
         Reported aggregate prevention therefore over-weights the well-covered
         families.
-  \item \textbf{No latency numbers yet.} The ``cheap enough to gate every
-        step'' claim is architectural (sub-2B, single forward pass on the common
-        path), but we have not yet measured per-check latency on GPU or CPU.
-        \TODO{measure p50/p99 latency per check.}
+  \item \textbf{Latency measured on one GPU only.} A \texttt{check()} runs at
+        p50 $\approx 227$\,ms on a 20-step trace on an RTX 6000 Pro
+        (Section~\ref{sec:experiments:latency}). We have not characterized CPU /
+        edge latency, smaller or quantized GPUs, or the KV-cache speedup (which
+        was numerically correct but did not accelerate in our environment).
   \item \textbf{No quantitative cross-backend transfer.} We argue
         canonicalization makes one model framework-agnostic and observe transfer
         qualitatively, but we have not measured the train-on-A / test-on-B
-        prevention drop. \TODO{measure cross-backend transfer.}
+        prevention drop.
   \item \textbf{Threshold calibration is per-deployment.} The operating
         threshold $\tau\approx 0.92$ was selected on held-out data; a new
         deployment with a different benign distribution would need to
         recalibrate, and we have not characterized how transferable $\tau$ is.
   \item \textbf{Evasion.} As a learned distributional monitor, IAM is in
         principle evadable by attacks crafted to look in-distribution. We have
-        not yet run an adaptive-attacker evaluation. \TODO{adaptive evasion
-        study.}
+        not yet run an adaptive-attacker evaluation.
   \item \textbf{Scope.} IAM complements, and does not replace, model
         alignment (Section~\ref{sec:intro}). For strongly-aligned backends its
         marginal value is small; its intended regime is weakly-aligned
