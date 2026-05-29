@@ -4,7 +4,7 @@ secrets, issuing destructive shell commands, or following injected instructions
 hidden in tool output. Existing safeguards mostly act at the wrong moment:
 output filters and post-hoc transcript judges score a trajectory \emph{after}
 it has run, and using a large LLM as a per-action judge is too slow and
-expensive to gate every step of a live agent. We present \textbf{IAM},
+expensive to gate every step of a live agent. We present \textbf{IAM} (Inline Agent Monitor),
 a sub-2B fine-tuned language model (Qwen3.5-2B, full-parameter fine-tuning)
 that monitors an agent's tool-call trajectory \emph{online} and emits a
 per-step verdict --- \textsc{OK} / \textsc{WARN} / \textsc{STOP} --- so a

@@ -1,6 +1,8 @@
-# IAM
+# IAM — Inline Agent Monitor
 
-**A small, self-supervised model that watches an LLM agent's tool-call trace and stops the risky action _before_ it runs.**
+> *I am watching.*
+
+**A small, self-supervised model that watches an LLM agent's tool-call trace and stops the risky action _before_ it runs.** IAM (**I**nline **A**gent **M**onitor) rides inside the agent's execution loop and returns a per-step `OK` / `STOP` verdict on the *next* tool call — an inline guard, not a post-hoc judge.
 
 [![CI](https://github.com/songningyu/agent-iam/actions/workflows/ci.yml/badge.svg)](https://github.com/songningyu/agent-iam/actions/workflows/ci.yml)
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
@@ -63,6 +65,33 @@ attacks did we prevent in time?"
 > These numbers are preliminary and from the v0.19 baseline; expect them to move as the
 > dataset and training recipe evolve. Reproduce them with the eval harness
 > (`agent_iam.eval`, see below).
+
+## What we learned (v0.19)
+
+A few findings shaped the design and are worth stating up front:
+
+- **Dense per-step supervision is what controls false stops.** Supervising an `OK` verdict
+  after *every* decision step — not just `STOP` at the anomaly — teaches the model to say
+  "do **not** stop here" as strongly as "stop here." This is the lever that pushed in-trace
+  over-flagging down to ≈2–3%.
+- **STOP up-weighting moves prevention off the floor.** The dense layout is ~7:1 `OK`:`STOP`;
+  without up-weighting the STOP token (`W_STOP=8`) the model collapses to "never stop."
+- **The residual false stops are concentrated in one source.** Benign false-stop rate is
+  ≈2.2% overall but ≈6.5% on ATBench and ≈0% everywhere else (Claude Code, LangGraph, MRT,
+  OpenAI-ReAct). A handful of ATBench benign traces fire at high `p_stop`, and they are what
+  cap PR@FSR=1% at ≈0.89 — fixing them is the single highest-leverage next step.
+- **Measure at the operating point, not by AUROC.** AUROC is ≈0.997 and flatters the model;
+  the deployment-relevant number is PR@FSR=1%. Mind the threshold grid too: scoring
+  `p_stop ∈ [0,1]` on a coarse perplexity-scale grid silently reports PR@FSR=1% as `0` — the
+  sweep must be a fine `[0,1]` grid.
+- **Shaped attacks are easy; subtle ones are the frontier.** Per-family prevention is ≈1.0
+  for exfiltration / email / SSRF / shell / persistence / indirect-injection, and weaker on
+  ATBench / MCP / DNS-exfil — the semantically subtle cases.
+- **A guard complements alignment; it doesn't replace it.** A production-aligned backend
+  refused 0/65 common attacks in our red-team probing; IAM's value is for the large fraction
+  of agents on *weakly-aligned* backends, where the same attacks land. We treat attack
+  success as a 2-D phenomenon (attacker goal × victim alignment); see `PAPER_FINDINGS.md`
+  (F1–F8).
 
 ## Install
 
