@@ -1,4 +1,4 @@
-"""Unit tests for traceguard.runtime.stream.StreamingMonitor.
+"""Unit tests for agent_iam.runtime.stream.StreamingMonitor.
 
 These run WITHOUT torch / a real model: a `FakeMonitor` stub returns a
 scripted `Verdict` (STOP when the proposed tool is in a denylist, else OK).
@@ -9,8 +9,8 @@ auto-halt behavior of the `guarded` generator, and reset().
 
 from __future__ import annotations
 
-from traceguard.runtime import StreamingMonitor
-from traceguard.schema import Role, Trajectory, Verdict
+from agent_iam.runtime import StreamingMonitor
+from agent_iam.schema import Role, Trajectory, Verdict
 
 
 # ---------------------------------------------------------------------------

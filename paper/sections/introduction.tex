@@ -27,7 +27,7 @@ enough to gate every step; and (iii) \emph{trajectory-aware} --- it scores the
 proposed action in the context of everything that came before.
 
 \paragraph{Contribution.}
-We present \textbf{TraceGuard}, a sub-2B online trajectory monitor that fills
+We present \textbf{IAM}, a sub-2B online trajectory monitor that fills
 this gap. Our contributions are:
 \begin{enumerate}[leftmargin=1.4em,itemsep=0.15em]
   \item \textbf{An online per-step verdict head.} A full fine-tune of
@@ -60,14 +60,14 @@ this gap. Our contributions are:
 A well-aligned backend already refuses most agent attacks: in our red-team
 probing, a production-aligned model resisted $0/65$ common attack prompts
 across indirect injection, exfiltration, SSRF, and shell injection
-(Section~\ref{sec:experiments}, F1). TraceGuard's value is for the substantial
+(Section~\ref{sec:experiments}, F1). IAM's value is for the substantial
 fraction of production agents that run on \emph{weakly-aligned} backends, where
 the same attacks succeed at high rates. We therefore frame agent attack success
 as a two-dimensional phenomenon --- attacker goal $\times$ victim alignment ---
-and position TraceGuard as a runtime layer that complements alignment for the
+and position IAM as a runtime layer that complements alignment for the
 weakly-aligned regime rather than substituting for it.
 
-On a preliminary 269-trace evaluation set, TraceGuard prevents
+On a preliminary 269-trace evaluation set, IAM prevents
 $\approx 89\%$ of attacks in time while false-stopping $\approx 2.2\%$ of
 benign traces overall, and reaches PR@FSR=1\% $\approx 0.89$ at AUROC
 $\approx 0.997$ --- far above a keyword baseline (PR@FSR=1\% $\approx 0.12$)

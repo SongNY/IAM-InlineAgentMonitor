@@ -13,7 +13,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from traceguard.data.mrt import sample_trajectories
+from agent_iam.data.mrt import sample_trajectories
 
 
 def main() -> int:

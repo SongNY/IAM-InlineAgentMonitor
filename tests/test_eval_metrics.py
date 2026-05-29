@@ -1,4 +1,4 @@
-"""Unit tests for traceguard.eval.metrics.
+"""Unit tests for agent_iam.eval.metrics.
 
 These cover the deployment-framed metrics (Prevention Rate, False Stop Rate)
 and the reference metrics (AUROC, best-F1), with edge cases that would
@@ -11,7 +11,7 @@ import math
 
 import pytest
 
-from traceguard.eval.metrics import (
+from agent_iam.eval.metrics import (
     F1Point,
     OperatingPoint,
     SliceMetric,

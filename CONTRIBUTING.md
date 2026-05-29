@@ -1,20 +1,20 @@
-# Contributing to TraceGuard
+# Contributing to IAM
 
-Thanks for your interest in improving TraceGuard. This is a research project under active
+Thanks for your interest in improving IAM. This is a research project under active
 development, so contributions of all kinds are welcome — bug fixes, new attack scenarios,
 adapters for additional agent frameworks, and documentation.
 
 ## Dev setup
 
-TraceGuard targets Python 3.10+.
+IAM targets Python 3.10+.
 
 ```bash
-git clone https://github.com/songningyu/traceguard
-cd traceguard
+git clone https://github.com/songningyu/agent-iam
+cd agent-iam
 pip install -e ".[dev,eval]"
 ```
 
-`import traceguard` is intentionally light (schema + tokenizer, no torch). Install the
+`import agent_iam` is intentionally light (schema + tokenizer, no torch). Install the
 relevant extras for the area you're touching: `train`, `eval`, `runtime`, or `all`.
 
 ## Running tests and lint
@@ -34,7 +34,7 @@ make sure both pass locally before opening a PR.
 - Add or update tests for any behavior change (see `tests/` for the existing style).
 - Run `ruff check .` and `pytest -q` before pushing.
 - Write a clear PR description: what changed and why.
-- New attack scenarios go under `traceguard/data/generate/scenarios/` and must carry a
+- New attack scenarios go under `agent_iam/data/generate/scenarios/` and must carry a
   violation predicate the auto-labeler can match.
 
 ## Don't commit data or runs

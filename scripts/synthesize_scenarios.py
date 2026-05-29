@@ -11,7 +11,7 @@ Usage:
     python scripts/synthesize_scenarios.py \\
         --category shell_injection \\
         --n 8 \\
-        --out traceguard/data/generate/scenarios/shell_injection_auto.py
+        --out agent_iam/data/generate/scenarios/shell_injection_auto.py
 
     # generate 12 new corrupted-tool-feedback scenarios
     python scripts/synthesize_scenarios.py \\
@@ -32,7 +32,7 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-SCEN_DIR = ROOT / "traceguard" / "data" / "generate" / "scenarios"
+SCEN_DIR = ROOT / "agent_iam" / "data" / "generate" / "scenarios"
 
 
 PROMPT_TEMPLATE = """You are a security researcher generating training data for an

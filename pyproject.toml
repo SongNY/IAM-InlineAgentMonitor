@@ -3,7 +3,7 @@ requires = ["setuptools>=68", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "traceguard"
+name = "agent-iam"
 version = "0.1.0a0"
 description = "Self-supervised trace anomaly detection for LLM agents at sub-2B scale"
 readme = "README.md"
@@ -65,20 +65,20 @@ all = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/songningyu/traceguard"
-Repository = "https://github.com/songningyu/traceguard"
-Issues = "https://github.com/songningyu/traceguard/issues"
-Changelog = "https://github.com/songningyu/traceguard/blob/main/CHANGELOG.md"
+Homepage = "https://github.com/songningyu/agent-iam"
+Repository = "https://github.com/songningyu/agent-iam"
+Issues = "https://github.com/songningyu/agent-iam/issues"
+Changelog = "https://github.com/songningyu/agent-iam/blob/main/CHANGELOG.md"
 Paper = "https://arxiv.org/abs/TBD"
 
 [project.scripts]
-traceguard = "traceguard.cli:main"
+iam = "agent_iam.cli:main"
 
 [tool.setuptools.packages.find]
-include = ["traceguard*"]
+include = ["agent_iam*"]
 
 [tool.setuptools.package-data]
-traceguard = ["py.typed"]
+agent_iam = ["py.typed"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

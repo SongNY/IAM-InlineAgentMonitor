@@ -14,7 +14,7 @@ dist/
 .claude/
 
 # ---- Datasets (1.6 GB; tracked out-of-band, not in git) ----
-# Leading slash anchors to repo root so the traceguard/data/ source
+# Leading slash anchors to repo root so the agent_iam/data/ source
 # package (scenario generators etc.) is NOT ignored.
 /data/
 

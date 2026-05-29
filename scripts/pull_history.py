@@ -13,7 +13,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from traceguard.data.claude_history import iter_all_history
+from agent_iam.data.claude_history import iter_all_history
 
 
 def main() -> int:

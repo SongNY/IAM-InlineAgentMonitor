@@ -1,4 +1,4 @@
-"""Upload a trained TraceGuard checkpoint to the Hugging Face Hub.
+"""Upload a trained IAM checkpoint to the Hugging Face Hub.
 
 Built for the Kaggle training notebook (the checkpoint lives at
 ``/kaggle/working/submission_model_best``) but works with any local folder.
@@ -10,12 +10,12 @@ Auth resolution order:
 
 Kaggle cell:
     !python upload_to_hf.py \
-        --repo-id <user>/traceguard-2b \
+        --repo-id <user>/agent-iam-2b \
         --src /kaggle/working/submission_model_best
 
 Programmatic:
     from upload_to_hf import upload_checkpoint
-    upload_checkpoint("<user>/traceguard-2b",
+    upload_checkpoint("<user>/agent-iam-2b",
                       "/kaggle/working/submission_model_best")
 """
 
@@ -58,12 +58,12 @@ tags:
   - guardrail
   - llm-agent
   - trace-monitoring
-  - traceguard
+  - agent_iam
 ---
 
 # {repo_id}
 
-TraceGuard is a small fine-tuned LM that watches an LLM agent's tool-call
+IAM is a small fine-tuned LM that watches an LLM agent's tool-call
 trace in real time and emits a per-step verdict — **OK** (let the agent
 continue) or **STOP** (block the next action) — before a critical action
 executes. It is trained with dense per-step verdict supervision on agent
@@ -73,7 +73,7 @@ related attack families, plus benign agent runs.
 ## Usage
 
 ```python
-from traceguard.detect.online import TraceMonitor
+from agent_iam.detect.online import TraceMonitor
 
 monitor = TraceMonitor.from_pretrained("{repo_id}")
 verdict = monitor.verdict_at(trajectory, cutoff_step=k)   # {{p_stop, predicted_symbol, ...}}
@@ -99,7 +99,7 @@ def upload_checkpoint(
     token: str | None = None,
     private: bool = True,
     write_card: bool = True,
-    commit_message: str = "Upload TraceGuard checkpoint",
+    commit_message: str = "Upload IAM checkpoint",
 ) -> str:
     """Create the repo (if needed) and push everything under ``src``.
 
@@ -150,8 +150,8 @@ def upload_checkpoint(
 
 
 def main(argv: list[str] | None = None) -> int:
-    p = argparse.ArgumentParser(description="Upload a TraceGuard checkpoint to the HF Hub.")
-    p.add_argument("--repo-id", required=True, help="e.g. <user>/traceguard-2b")
+    p = argparse.ArgumentParser(description="Upload a IAM checkpoint to the HF Hub.")
+    p.add_argument("--repo-id", required=True, help="e.g. <user>/agent-iam-2b")
     p.add_argument("--src", default="/kaggle/working/submission_model_best",
                    help="Local checkpoint folder to upload.")
     p.add_argument("--token", default=None, help="HF write token (else env / Kaggle Secret).")

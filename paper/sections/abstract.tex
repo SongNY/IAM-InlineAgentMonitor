@@ -4,11 +4,11 @@ secrets, issuing destructive shell commands, or following injected instructions
 hidden in tool output. Existing safeguards mostly act at the wrong moment:
 output filters and post-hoc transcript judges score a trajectory \emph{after}
 it has run, and using a large LLM as a per-action judge is too slow and
-expensive to gate every step of a live agent. We present \textbf{TraceGuard},
+expensive to gate every step of a live agent. We present \textbf{IAM},
 a sub-2B fine-tuned language model (Qwen3.5-2B, full-parameter fine-tuning)
 that monitors an agent's tool-call trajectory \emph{online} and emits a
 per-step verdict --- \textsc{OK} / \textsc{WARN} / \textsc{STOP} --- so a
-harmful action can be blocked \emph{before it executes}. TraceGuard is trained
+harmful action can be blocked \emph{before it executes}. IAM is trained
 with \emph{dense per-step verdict supervision} on a framework-agnostic
 canonical \texttt{Trajectory} schema, letting a single model operate across
 agent frameworks (Claude Code, an OpenAI-API ReAct loop, LangGraph). At
@@ -16,9 +16,9 @@ inference, the monitor reads $P(\textsc{STOP})$ directly from the next-token
 logits over $\{\textsc{OK},\textsc{WARN},\textsc{STOP}\}$. We evaluate with a
 deployment-centric operating point: \textbf{Prevention Rate at a False-Stop
 Rate of at most 1\%} (PR@FSR$\le$1\%). On a preliminary 269-trace evaluation
-set (130 attacks / 139 benign), TraceGuard reaches PR@FSR=1\% $\approx 0.89$
+set (130 attacks / 139 benign), IAM reaches PR@FSR=1\% $\approx 0.89$
 (AUROC $\approx 0.997$), versus $\approx 0.12$ for a keyword baseline and
-$\approx 0.08$ for an action-perplexity baseline. We position TraceGuard as a
+$\approx 0.08$ for an action-perplexity baseline. We position IAM as a
 \emph{complement} to model alignment for deployments that use weakly-aligned
 backends, not a replacement for it. All results in this draft are preliminary
 (single v0.19 run) and several evaluation cells remain open.

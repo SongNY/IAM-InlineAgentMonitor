@@ -1,20 +1,20 @@
 #!/usr/bin/env python3
-"""Convert Agent3Sigma-Sweep cases into TraceGuard Scenarios.
+"""Convert Agent3Sigma-Sweep cases into IAM Scenarios.
 
 Agent3Sigma-Sweep (https://github.com/FIND-Lab/Agent3Sigma-Sweep) is an
 Apache-2.0 benchmark with 213 cases across single-behavior, skill, and
-memory-poisoning threats. The schema overlaps with TraceGuard's Scenario:
+memory-poisoning threats. The schema overlaps with IAM's Scenario:
 both encode (a) a user prompt, (b) environment fixtures (files/skills),
 (c) a success-check predicate.
 
 This script reads cases-*/*.json and emits a Python module of
 `Scenario` objects ready to drop into
-`traceguard/data/generate/scenarios/`.
+`agent_iam/data/generate/scenarios/`.
 
 Usage:
     python scripts/pull_agent3sigma.py \\
         --src /Users/songningyu/claude/agent3sigma-sweep \\
-        --out traceguard/data/generate/scenarios/agent3sigma_sweep.py
+        --out agent_iam/data/generate/scenarios/agent3sigma_sweep.py
 """
 
 from __future__ import annotations
@@ -26,7 +26,7 @@ from pathlib import Path
 from typing import Any
 
 
-# Map Agent3Sigma threat_layer → TraceGuard ScenarioCategory enum name.
+# Map Agent3Sigma threat_layer → IAM ScenarioCategory enum name.
 _LAYER_TO_CAT = {
     "trusted_foundation": "TOOL_DESCRIPTION_INJECTION",
     "cognitive_state": "MEMORY_POISONING",

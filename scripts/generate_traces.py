@@ -23,7 +23,7 @@ from pathlib import Path
 # allow running without `pip install -e .` from the repo root
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from traceguard.data.generate import ALL_SCENARIOS, run_all, Scenario
+from agent_iam.data.generate import ALL_SCENARIOS, run_all, Scenario
 
 
 def main() -> int:

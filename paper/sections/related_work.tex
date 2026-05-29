@@ -6,7 +6,7 @@ Llama Guard \citep{llamaguard} and WildGuard \citep{wildguard} are LLM-based
 classifiers that label a single prompt or response as safe / unsafe. They are
 effective content moderators but are designed for terminal text, not for gating
 the next tool call in a multi-step agent loop. They have no notion of
-trajectory state and cannot intervene mid-run; TraceGuard's unit of decision is
+trajectory state and cannot intervene mid-run; IAM's unit of decision is
 a proposed \emph{action} conditioned on the prior trace, and its intervention
 is \emph{online}.
 
@@ -15,7 +15,7 @@ R-Judge \citep{rjudge} evaluates whether an LLM can judge the safety of a
 \emph{completed} agent trajectory, and benchmarks frontier models as graded
 judges. This is valuable for offline auditing and for measuring judgment
 ability, but a post-hoc judge cannot prevent the harmful action --- by the time
-it scores the transcript, the action has executed. TraceGuard targets the
+it scores the transcript, the action has executed. IAM targets the
 opposite regime: a small model that decides \emph{before} each step, in time to
 block it.
 
@@ -23,7 +23,7 @@ block it.
 ShieldAgent \citep{shieldagent} enforces safety via explicit, often
 LLM-assembled, policy rules over agent actions. Rule-based shields are precise
 and auditable when a relevant rule exists, but they require the rule to be
-written and tend to miss attacks outside the encoded policy. TraceGuard instead
+written and tend to miss attacks outside the encoded policy. IAM instead
 learns the verdict distribution from labeled trajectories, so novel attack
 phrasings that match learned patterns can be flagged without an explicit rule;
 the trade-off is the usual one (learned coverage vs. auditable guarantees).
@@ -32,13 +32,13 @@ the trade-off is the usual one (learned coverage vs. auditable guarantees).
 AgentArmor \citep{agentarmor} applies static / symbolic analysis over tool
 calls and data flow (e.g. tracking tainted inputs to sensitive sinks). This is
 complementary to a distributional monitor: symbolic taint tracking is strong
-where tool semantics are well-typed, whereas TraceGuard's learned head can flag
+where tool semantics are well-typed, whereas IAM's learned head can flag
 anomalous \emph{patterns} even when individual calls look type-valid.
 
 \paragraph{Trajectory anomaly detection.}
 TrajAD-style \citep{trajad} approaches detect anomalous agent trajectories,
 typically framed around \emph{quality} anomalies and within a single agent
-framework. TraceGuard differs along three axes: (i) the target is
+framework. IAM differs along three axes: (i) the target is
 \emph{security} attacks, not quality drift; (ii) training data is
 self-generated and folded into a \emph{framework-agnostic} canonical schema, so
 one model spans frameworks; and (iii) intervention is \emph{online} via a
@@ -55,7 +55,7 @@ patterns when synthesizing adversarial traces. Our model backbone is Qwen3.5-2B
 \citep{qwen3}.
 
 \paragraph{Summary of positioning.}
-Relative to prior work, TraceGuard occupies a specific cell: a \emph{small},
+Relative to prior work, IAM occupies a specific cell: a \emph{small},
 \emph{learned}, \emph{online}, \emph{framework-agnostic} monitor evaluated under
 a \emph{deployment} operating point (PR@FSR). Table~\ref{tab:positioning}
 summarizes the comparison. % TODO: numbers in this table are qualitative; quantitative head-to-head on a shared benchmark is future work.
@@ -72,7 +72,7 @@ summarizes the comparison. % TODO: numbers in this table are qualitative; quanti
     ShieldAgent             & policy rules       & per action    & yes & yes \\
     AgentArmor              & symbolic analysis  & per action    & yes & partial \\
     TrajAD                  & learned classifier & trace         & no$^{\dagger}$ & no \\
-    \textbf{TraceGuard}     & \textbf{learned verdict head} & \textbf{per step} & \textbf{yes} & \textbf{no} \\
+    \textbf{IAM}     & \textbf{learned verdict head} & \textbf{per step} & \textbf{yes} & \textbf{no} \\
     \bottomrule
   \end{tabular}
   \caption{Qualitative positioning. $^{\dagger}$Typically check-and-act /

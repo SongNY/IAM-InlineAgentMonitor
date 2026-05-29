@@ -1,17 +1,17 @@
 #!/usr/bin/env python3
-"""Score a held-out split with TraceGuard + a keyword baseline, then build a report.
+"""Score a held-out split with IAM + a keyword baseline, then build a report.
 
 This mirrors what the Kaggle training notebook does at the end of each epoch, but as a
 standalone script. Run it after you have a tokenized/built test split (see
 ``examples/generate_data.py`` or ``scripts/build_dataset.py``).
 
     python examples/run_eval.py \
-        --model Sunnyu/TraceGuard-Qwen3.5-2B \
+        --model Sunnyu/IAM-Qwen3.5-2B \
         --data data/v0.1/test.jsonl \
         --out runs-eval
 
 Outputs (under ``--out``):
-    runs-eval/traceguard/scores.jsonl
+    runs-eval/agent_iam/scores.jsonl
     runs-eval/keyword/scores.jsonl
     runs-eval/report/report.md      (headline PR@FSR table + per-slice tables)
     runs-eval/report/slices.csv
@@ -38,13 +38,13 @@ def main() -> int:
     args = ap.parse_args()
 
     # Imported lazily so the eval *metrics* stay importable without torch.
-    from traceguard.detect.online import TraceMonitor
-    from traceguard.eval.baselines import keyword_scorer
-    from traceguard.eval.report import build_report
-    from traceguard.eval.runner import run_split, verdict_scorer
+    from agent_iam.detect.online import TraceMonitor
+    from agent_iam.eval.baselines import keyword_scorer
+    from agent_iam.eval.report import build_report
+    from agent_iam.eval.runner import run_split, verdict_scorer
 
     out = Path(args.out)
-    tg_scores = out / "traceguard" / "scores.jsonl"
+    tg_scores = out / "agent_iam" / "scores.jsonl"
     kw_scores = out / "keyword" / "scores.jsonl"
 
     # 1. Score the trained verdict head. verdict_scorer makes 1-2 queries per trace
@@ -63,7 +63,7 @@ def main() -> int:
     report = build_report(
         [tg_scores, kw_scores],
         out_dir=out / "report",
-        names=["traceguard", "keyword"],
+        names=["agent_iam", "keyword"],
         slice_keys=("family", "source", "harm_category"),
     )
     print(json.dumps(report, indent=2))

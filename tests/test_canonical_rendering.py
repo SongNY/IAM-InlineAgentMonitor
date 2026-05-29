@@ -8,8 +8,8 @@ from __future__ import annotations
 
 import pytest
 
-from traceguard.schema import Role, TraceStep, Trajectory
-from traceguard.tokenize import SPECIAL_TOKENS, _span_mask
+from agent_iam.schema import Role, TraceStep, Trajectory
+from agent_iam.tokenize import SPECIAL_TOKENS, _span_mask
 
 
 def _tokenizer():
@@ -96,8 +96,8 @@ def test_verdict_span_mask_also_works():
     keeps working — it never had the bug, but we want to be sure the
     rendering change didn't accidentally break it."""
     tok = _tokenizer()
-    from traceguard.schema import Verdict
-    from traceguard.tokenize import TraceTokenizer
+    from agent_iam.schema import Verdict
+    from agent_iam.tokenize import TraceTokenizer
 
     trace_tok = TraceTokenizer(tok)
     text = trace_tok.render(

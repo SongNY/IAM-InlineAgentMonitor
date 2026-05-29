@@ -48,7 +48,7 @@ anything.''
     \midrule
     Keyword / regex baseline      & $\approx 0.115$ & \TODO{n/a} & $\approx 0.56$ \\
     Action-perplexity baseline    & $\approx 0.08$  & \TODO{n/a} & \TODO{n/a} \\
-    \textbf{TraceGuard (verdict head)} & $\mathbf{\approx 0.89}$ & $\mathbf{\approx 0.95\text{--}1.0}$ & $\mathbf{\approx 0.997}$ \\
+    \textbf{IAM (verdict head)} & $\mathbf{\approx 0.89}$ & $\mathbf{\approx 0.95\text{--}1.0}$ & $\mathbf{\approx 0.997}$ \\
     \bottomrule
   \end{tabular}
   \caption{Preliminary v0.19 results on the 269-trace evaluation set
@@ -60,7 +60,7 @@ anything.''
 \end{table}
 
 Table~\ref{tab:main} summarizes the main result. At an operating point of
-$P(\textsc{STOP})$ threshold $\tau\approx 0.92$, TraceGuard reaches
+$P(\textsc{STOP})$ threshold $\tau\approx 0.92$, IAM reaches
 \textbf{PR@FSR=1\% $\approx 0.89$}; relaxing the constraint to FSR$\le$5\%
 raises prevention to $\approx 0.95\text{--}1.0$. Trace-level separation is very
 strong (\textbf{AUROC $\approx 0.997$}). Both baselines are far below: the
@@ -151,7 +151,7 @@ monitor is needed. % TODO: these are red-team probing observations from earlier 
   \item \textbf{F8 --- Attack success is 2D.} Attack success is governed jointly
         by attacker goal and victim alignment: near $0\%$ across goals for a
         high-alignment backend, but $60\text{--}96\%$ for a medium-alignment one.
-        TraceGuard targets the weakly-aligned cell of this matrix.
+        IAM targets the weakly-aligned cell of this matrix.
 \end{itemize}
 
 \noindent

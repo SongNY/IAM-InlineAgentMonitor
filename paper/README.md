@@ -1,4 +1,4 @@
-# TraceGuard paper draft
+# IAM paper draft
 
 Build the PDF with a vanilla TeX Live install (no custom `.sty` files needed) by
 running `make` in this directory, which executes `pdflatex -> bibtex -> pdflatex

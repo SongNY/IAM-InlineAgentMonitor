@@ -1,7 +1,7 @@
 \section{Conclusion}
 \label{sec:conclusion}
 
-We introduced TraceGuard, a sub-2B online trajectory monitor that gates an LLM
+We introduced IAM, a sub-2B online trajectory monitor that gates an LLM
 agent's tool calls \emph{before} they execute. The core ideas are a per-step
 verdict head that reads $P(\textsc{STOP})$ from next-token logits over
 $\{\textsc{OK},\textsc{WARN},\textsc{STOP}\}$, dense per-step verdict
@@ -11,7 +11,7 @@ model span agent frameworks. Evaluated under a deployment-centric operating
 point, preliminary v0.19 results reach PR@FSR=1\% $\approx 0.89$ (AUROC
 $\approx 0.997$), an order of magnitude above keyword and action-perplexity
 baselines, with the residual false-stop rate concentrated almost entirely in a
-single benign source. We position TraceGuard as a runtime complement to model
+single benign source. We position IAM as a runtime complement to model
 alignment for weakly-aligned agent deployments.
 
 \paragraph{Future work.}

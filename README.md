@@ -1,12 +1,12 @@
-# TraceGuard
+# IAM
 
 **A small, self-supervised model that watches an LLM agent's tool-call trace and stops the risky action _before_ it runs.**
 
-[![CI](https://github.com/songningyu/traceguard/actions/workflows/ci.yml/badge.svg)](https://github.com/songningyu/traceguard/actions/workflows/ci.yml)
+[![CI](https://github.com/songningyu/agent-iam/actions/workflows/ci.yml/badge.svg)](https://github.com/songningyu/agent-iam/actions/workflows/ci.yml)
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/downloads/)
 
-TraceGuard is a ~2.2B-parameter fine-tuned LM (base: **Qwen3.5-2B**, full fine-tune,
+IAM is a ~2.2B-parameter fine-tuned LM (base: **Qwen3.5-2B**, full fine-tune,
 Apache 2.0) that runs *inside* an agent's execution loop. Before each tool dispatch it
 sees the trace so far plus the proposed next action and emits a per-step verdict —
 `OK` / `WARN` / `STOP` — so the executor can block the harmful step in time.
@@ -16,9 +16,9 @@ gets a `STOP` at the `WebFetch`, before any secret leaves the machine.
 
 | What | Where |
 |---|---|
-| Package | `pip install traceguard` (light import; no torch needed for the schema/tokenizer) |
-| Model | `huggingface.co/Sunnyu/TraceGuard-Qwen3.5-2B` (base: Qwen3.5-2B, ~2.2B params, Apache 2.0) |
-| Data | `huggingface.co/datasets/<HF_USER>/traceguard-traces` |
+| Package | `pip install agent-iam` (light import; no torch needed for the schema/tokenizer) |
+| Model | `huggingface.co/Sunnyu/IAM-Qwen3.5-2B` (base: Qwen3.5-2B, ~2.2B params, Apache 2.0) |
+| Data | `huggingface.co/datasets/<HF_USER>/agent-iam-traces` |
 | Paper | arXiv:TBD |
 
 > Status: research preview (`0.1.0a0`, alpha). The model is published; the dataset and
@@ -36,7 +36,7 @@ Most agent guardrails act at the wrong time or with the wrong information:
 - **Policy-rule systems** (ShieldAgent, AgentArmor) need an explicit rule or tool tag for
   every threat, so zero-day patterns slip through.
 
-TraceGuard instead learns the **distribution of normal agent behavior** and is supervised
+IAM instead learns the **distribution of normal agent behavior** and is supervised
 to make a STOP/OK decision **at every decision step**, the same points where it runs in
 deployment. It intervenes mid-trace, on the proposed action, before the side effect
 happens — and because the signal is distributional rather than rule-based, it generalizes
@@ -56,27 +56,27 @@ attacks did we prevent in time?"
 
 | Scorer | PR @ FSR=1% | AUROC |
 |---|---:|---:|
-| **TraceGuard-2B** (verdict head) | **≈ 0.89** | **≈ 0.997** |
+| **IAM-2B** (verdict head) | **≈ 0.89** | **≈ 0.997** |
 | Keyword baseline | ≈ 0.115 | — |
 | Action-span perplexity baseline | ≈ 0.08 | — |
 
 > These numbers are preliminary and from the v0.19 baseline; expect them to move as the
 > dataset and training recipe evolve. Reproduce them with the eval harness
-> (`traceguard.eval`, see below).
+> (`agent_iam.eval`, see below).
 
 ## Install
 
 ```bash
 # from PyPI (once published)
-pip install traceguard
+pip install agent-iam
 
 # from source, for development (tests + eval extras)
-git clone https://github.com/songningyu/traceguard
-cd traceguard
+git clone https://github.com/songningyu/agent-iam
+cd agent-iam
 pip install -e ".[dev,eval]"
 ```
 
-`import traceguard` is intentionally light: the schema (`Trajectory`, `Verdict`, the
+`import agent_iam` is intentionally light: the schema (`Trajectory`, `Verdict`, the
 ATBench-compatible label space) and the `TraceTokenizer` import without `torch`. The
 `TraceMonitor` inference class is lazy-loaded, so torch/transformers are only required
 when you actually run a model.
@@ -87,7 +87,7 @@ Optional dependency extras:
 |---|---|---|
 | `train` | peft, trl, bitsandbytes, accelerate | fine-tuning |
 | `eval` | scikit-learn, matplotlib | the eval harness + report plots |
-| `runtime` | fastapi, uvicorn | the `traceguard serve` HTTP sidecar |
+| `runtime` | fastapi, uvicorn | the `iam serve` HTTP sidecar |
 | `dev` | pytest, ruff, ipykernel | development |
 | `all` | everything above | one-shot full install |
 
@@ -100,9 +100,9 @@ pip install -e ".[all]"
 ### `TraceMonitor` (one-shot check)
 
 ```python
-from traceguard import TraceMonitor, Trajectory
+from agent_iam import TraceMonitor, Trajectory
 
-monitor = TraceMonitor.from_pretrained("Sunnyu/TraceGuard-Qwen3.5-2B", threshold=0.5)
+monitor = TraceMonitor.from_pretrained("Sunnyu/IAM-Qwen3.5-2B", threshold=0.5)
 
 # `trace_so_far` is a canonical Trajectory (the steps already executed).
 verdict = monitor.check(
@@ -124,13 +124,13 @@ For agents that emit observations and actions incrementally, the streaming monit
 the running trace for you:
 
 ```python
-from traceguard import TraceMonitor
-from traceguard.runtime.stream import StreamingMonitor
+from agent_iam import TraceMonitor
+from agent_iam.runtime.stream import StreamingMonitor
 
 # StreamingMonitor wraps any object with a `.check(trace, action) -> Verdict`,
 # so hand it a TraceMonitor (or a stub in tests).
 mon = StreamingMonitor(
-    TraceMonitor.from_pretrained("Sunnyu/TraceGuard-Qwen3.5-2B"),
+    TraceMonitor.from_pretrained("Sunnyu/IAM-Qwen3.5-2B"),
     task_instruction="summarize the repo",
 )
 
@@ -141,7 +141,7 @@ if verdict.block:
 mon.commit(action={"tool": "Bash", "args": {"cmd": "ls"}}, observation="...")  # what actually ran
 ```
 
-> `StreamingMonitor` lives in `traceguard/runtime/stream.py`. `guard` only checks (it does
+> `StreamingMonitor` lives in `agent_iam/runtime/stream.py`. `guard` only checks (it does
 > not mutate the trace); `commit` records the action you actually executed. See its
 > docstring for the full `observe` / `guard` / `commit` contract.
 
@@ -149,20 +149,20 @@ mon.commit(action={"tool": "Bash", "args": {"cmd": "ls"}}, observation="...")  #
 
 ```bash
 # Scan every trajectory in a JSONL file and print non-OK verdicts as JSON lines.
-traceguard scan path/to/traces.jsonl --model Sunnyu/TraceGuard-Qwen3.5-2B
+iam scan path/to/traces.jsonl --model Sunnyu/IAM-Qwen3.5-2B
 
 # Run as a sidecar HTTP service exposing POST /check (requires the `runtime` extra).
-traceguard serve --host 127.0.0.1 --port 8788 --model Sunnyu/TraceGuard-Qwen3.5-2B
+iam serve --host 127.0.0.1 --port 8788 --model Sunnyu/IAM-Qwen3.5-2B
 ```
 
 ### Framework adapters
 
-`traceguard.runtime.adapters` hooks the monitor into a live framework. Each adapter
+`agent_iam.runtime.adapters` hooks the monitor into a live framework. Each adapter
 accumulates the running trace as a canonical `Trajectory` and gates each proposed tool
 call through `monitor.check(...)`:
 
 ```python
-from traceguard.runtime.adapters import get_adapter
+from agent_iam.runtime.adapters import get_adapter
 
 adapter = get_adapter("langgraph", monitor)   # or "claude_code"
 graph = adapter.wrap(compiled_graph)           # installs a pre-tool interceptor
@@ -170,7 +170,7 @@ graph = adapter.wrap(compiled_graph)           # installs a pre-tool interceptor
 
 ## Data generation pipeline
 
-TraceGuard's primary training signal is self-generated: real agent frameworks are driven
+IAM's primary training signal is self-generated: real agent frameworks are driven
 through adversarial and benign scenarios, and an auto-labeler marks the anomaly step. The
 pipeline is four stages.
 
@@ -181,7 +181,7 @@ in the existing library's format:
 python scripts/synthesize_scenarios.py \
     --category shell_injection \
     --n 8 \
-    --out traceguard/data/generate/scenarios/shell_injection_auto.py
+    --out agent_iam/data/generate/scenarios/shell_injection_auto.py
 ```
 
 **2. Generate traces.** Drive an agent backend through the scenario library and capture
@@ -236,7 +236,7 @@ python scripts/tokenize_dataset.py \
 ```
 
 To run training on Kaggle, `scripts/build_kaggle_bundle.py` packages the wheel + tokenized
-JSONL into two uploadable zips (`dist/traceguard-src.zip`, `dist/traceguard-data.zip`).
+JSONL into two uploadable zips (`dist/agent-iam-src.zip`, `dist/agent-iam-data.zip`).
 
 See `examples/generate_data.py` for a copy-pasteable walkthrough.
 
@@ -261,44 +261,44 @@ Hugging Face Hub.
 
 ## Evaluation
 
-The `traceguard.eval` package replays test traces through a scorer and renders a report.
+The `agent_iam.eval` package replays test traces through a scorer and renders a report.
 Metrics are framed around deployment semantics — **Prevention Rate** (flag at or before
 the anomaly step, in time to block) and **False Stop Rate** (any flag on a benign trace) —
 with PR@FSR as the headline operating point and AUROC / F1 as reference numbers.
 
 The eval pipeline is exposed as two steps (`score`, then `report`) in
-`traceguard.eval.cli`. The `score` step writes per-trace scores; `report` consumes one or
+`agent_iam.eval.cli`. The `score` step writes per-trace scores; `report` consumes one or
 more `scores.jsonl` files and emits `report.md`, `slices.csv`, and a `pr_fsr.png` plot.
 
 ```python
-from traceguard.eval.runner import verdict_scorer, run_split
-from traceguard.eval.baselines import keyword_scorer
-from traceguard.eval.report import build_report
-from traceguard.detect.online import TraceMonitor
+from agent_iam.eval.runner import verdict_scorer, run_split
+from agent_iam.eval.baselines import keyword_scorer
+from agent_iam.eval.report import build_report
+from agent_iam.detect.online import TraceMonitor
 
 # 1. score the model + a baseline
-monitor = TraceMonitor.from_pretrained("Sunnyu/TraceGuard-Qwen3.5-2B")
-run_split(verdict_scorer(monitor), "data/v0.1/test.jsonl", "runs-eval/traceguard/scores.jsonl")
+monitor = TraceMonitor.from_pretrained("Sunnyu/IAM-Qwen3.5-2B")
+run_split(verdict_scorer(monitor), "data/v0.1/test.jsonl", "runs-eval/agent_iam/scores.jsonl")
 run_split(keyword_scorer(),        "data/v0.1/test.jsonl", "runs-eval/keyword/scores.jsonl")
 
 # 2. build the comparison report
 build_report(
-    ["runs-eval/traceguard/scores.jsonl", "runs-eval/keyword/scores.jsonl"],
+    ["runs-eval/agent_iam/scores.jsonl", "runs-eval/keyword/scores.jsonl"],
     out_dir="runs-eval/report/",
-    names=["traceguard", "keyword"],
+    names=["agent_iam", "keyword"],
 )
 ```
 
-Available scorers: `verdict_scorer` / `monitor_scorer` (`traceguard.eval.runner`), and the
-`keyword_scorer` / `untrained_lm_scorer` baselines (`traceguard.eval.baselines`). See
+Available scorers: `verdict_scorer` / `monitor_scorer` (`agent_iam.eval.runner`), and the
+`keyword_scorer` / `untrained_lm_scorer` baselines (`agent_iam.eval.baselines`). See
 `examples/run_eval.py` for a runnable version.
 
 ## Model & data
 
 Public artifacts (placeholders until release):
 
-- Model: `https://huggingface.co/Sunnyu/TraceGuard-Qwen3.5-2B`
-- Dataset: `https://huggingface.co/datasets/<HF_USER>/traceguard-traces`
+- Model: `https://huggingface.co/Sunnyu/IAM-Qwen3.5-2B`
+- Dataset: `https://huggingface.co/datasets/<HF_USER>/agent-iam-traces`
 
 A helper at `scripts/upload_to_hf.py` pushes the trained checkpoint and dataset to the Hub.
 The label space follows ATBench (AI45Research/ATBench, Apache 2.0): risk source × failure
@@ -307,11 +307,11 @@ mode × harm category. Each external data source retains its original license.
 ## Repo layout
 
 ```
-traceguard/
+agent_iam/
   __init__.py            # light public API (schema + tokenizer; TraceMonitor lazy-loaded)
   schema.py              # Trajectory / TraceStep / Verdict + ATBench-compatible label space
   tokenize.py            # canonical trace -> token stream; dense per-step verdict supervision
-  cli.py                 # `traceguard` console entry point (scan, serve)
+  cli.py                 # `iam` console entry point (scan, serve)
   detect/online.py       # TraceMonitor: from_pretrained, check, verdict_at, ppl_score
   eval/                  # eval harness: metrics, runner, baselines, report, cli
   runtime/
@@ -327,8 +327,8 @@ tests/                   # unit tests (canonical rendering, eval metrics)
 ## Citation
 
 ```bibtex
-@misc{zheng2026traceguard,
-  title  = {TraceGuard: Online Mid-Trace Anomaly Detection for LLM Agents at Sub-2B Scale},
+@misc{zheng2026iam,
+  title  = {IAM: Online Mid-Trace Anomaly Detection for LLM Agents at Sub-2B Scale},
   author = {Zheng, Songningyu},
   year   = {2026},
   note   = {arXiv:TBD}

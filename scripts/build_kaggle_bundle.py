@@ -1,20 +1,20 @@
 #!/usr/bin/env python3
-"""Package the traceguard repo + tokenized dataset into two zip files
+"""Package the agent_iam repo + tokenized dataset into two zip files
 ready to be uploaded as Kaggle Datasets.
 
 Output:
-    dist/traceguard-src.zip       # the pip-installable Python package
-    dist/traceguard-data.zip      # the tokenized train/val/test JSONL
+    dist/agent-iam-src.zip       # the pip-installable Python package
+    dist/agent-iam-data.zip      # the tokenized train/val/test JSONL
 
 On Kaggle, add these as input datasets to your notebook, then in the
 notebook setup cell:
-    !pip install /kaggle/input/traceguard-src/traceguard-0.1.0a0-py3-none-any.whl
-    # or for editable dev: !pip install -e /kaggle/input/traceguard-src/
+    !pip install /kaggle/input/agent-iam-src/agent_iam-0.1.0a0-py3-none-any.whl
+    # or for editable dev: !pip install -e /kaggle/input/agent-iam-src/
 
 The tokenized data is referenced from the notebook as:
-    /kaggle/input/traceguard-data/train.tokenized.jsonl
-    /kaggle/input/traceguard-data/val.tokenized.jsonl
-    /kaggle/input/traceguard-data/test.tokenized.jsonl
+    /kaggle/input/agent-iam-data/train.tokenized.jsonl
+    /kaggle/input/agent-iam-data/val.tokenized.jsonl
+    /kaggle/input/agent-iam-data/test.tokenized.jsonl
 """
 
 from __future__ import annotations
@@ -40,7 +40,7 @@ def build_src_wheel() -> Path:
         check=True,
     )
     # find the produced wheel
-    wheels = list(wheelhouse.glob("traceguard-*.whl"))
+    wheels = list(wheelhouse.glob("agent_iam-*.whl"))
     if not wheels:
         raise RuntimeError("no wheel produced")
     return wheels[0]
@@ -62,7 +62,7 @@ def zip_src(wheel_path: Path) -> Path:
         nb = ROOT / "notebooks" / nb_name
         if nb.exists():
             shutil.copy(nb, stage / nb_name)
-    out = DIST / "traceguard-src"
+    out = DIST / "agent-iam-src"
     if out.with_suffix(".zip").exists():
         out.with_suffix(".zip").unlink()
     shutil.make_archive(str(out), "zip", str(stage))
@@ -86,7 +86,7 @@ def zip_data(version: str = "v0.18") -> Path:
             shutil.copy(src, stage / fn)
     # add a README for the dataset
     (stage / "README.md").write_text(
-        f"# TraceGuard {version} dataset\n\n"
+        f"# IAM {version} dataset\n\n"
         "Tokenized agent-trace anomaly-detection dataset.\n\n"
         "## Files\n"
         "- `{train,val,test}.tokenized.jsonl` — Qwen3.5-2B tokenized; each line: "
@@ -98,13 +98,13 @@ def zip_data(version: str = "v0.18") -> Path:
         "import json\n"
         "from datasets import Dataset\n\n"
         "rows = []\n"
-        "with open('/kaggle/input/traceguard-data/train.tokenized.jsonl') as f:\n"
+        "with open('/kaggle/input/agent-iam-data/train.tokenized.jsonl') as f:\n"
         "    for line in f:\n"
         "        rows.append(json.loads(line))\n"
         "ds = Dataset.from_list(rows)\n"
         "```\n"
     )
-    out = DIST / "traceguard-data"
+    out = DIST / "agent-iam-data"
     if out.with_suffix(".zip").exists():
         out.with_suffix(".zip").unlink()
     shutil.make_archive(str(out), "zip", str(stage))
@@ -124,8 +124,8 @@ def main():
 
     print()
     print(f"upload to Kaggle:")
-    print(f"  1. New Dataset 'traceguard-src'  ← upload {src_zip}")
-    print(f"  2. New Dataset 'traceguard-data' ← upload {data_zip}")
+    print(f"  1. New Dataset 'agent-iam-src'  ← upload {src_zip}")
+    print(f"  2. New Dataset 'agent-iam-data' ← upload {data_zip}")
     print(f"  3. In notebook: + Add data → Your Datasets → both")
 
 

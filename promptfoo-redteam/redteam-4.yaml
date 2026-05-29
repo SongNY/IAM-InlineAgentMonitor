@@ -10,7 +10,7 @@
 #   Plugins:     bfla, bola, excessive-agency, harmful:cybercrime, harmful:cybercrime:malicious-code, indirect-prompt-injection, prompt-extraction, rbac, shell-injection, ssrf, tool-discovery
 #   Strategies:  authoritative-markup-injection, base64, camelcase, citation, emoji, goat, hex, homoglyph, jailbreak, jailbreak-templates, jailbreak:composite, jailbreak:hydra, jailbreak:meta, leetspeak, mischievous-user, morse, piglatin, prompt-injection, rot13
 # ===================================================================
-description: TraceGuard attack-prompt generator via promptfoo
+description: IAM attack-prompt generator via promptfoo
 targets:
   - id: openai:chat:deepseek-v4-flash
     config:

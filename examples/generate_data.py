@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""End-to-end walkthrough of the TraceGuard data-generation pipeline.
+"""End-to-end walkthrough of the IAM data-generation pipeline.
 
 This script does not generate traces itself (that needs an agent backend, model API
 access, and time) — it prints the exact, ordered commands that make up the pipeline so
@@ -37,7 +37,7 @@ PIPELINE = [
             "python", "scripts/synthesize_scenarios.py",
             "--category", "shell_injection",
             "--n", "8",
-            "--out", "traceguard/data/generate/scenarios/shell_injection_auto.py",
+            "--out", "agent_iam/data/generate/scenarios/shell_injection_auto.py",
         ],
     ),
     (
@@ -87,7 +87,7 @@ def main() -> int:
     )
     args = ap.parse_args()
 
-    print("TraceGuard data-generation pipeline\n" + "=" * 38)
+    print("IAM data-generation pipeline\n" + "=" * 38)
     for title, cmd in PIPELINE:
         print(f"\n# {title}")
         print("  " + " ".join(shlex.quote(c) for c in cmd))

@@ -1,4 +1,4 @@
-# TraceGuard — Paper Findings (running notes)
+# IAM — Paper Findings (running notes)
 
 Compiled from v0.2 + in-flight v0.3 data generation. Each finding has the
 concrete experiment that produced it, so we can re-validate at publication.
@@ -112,7 +112,7 @@ different raw event format. We fold both into a single canonical
 **Result**: a trace anomaly detector trained on Claude Code traces will
 generalize to OpenAI-API ReAct traces, *provided the violation patterns
 operate on the canonical schema*. This is the key abstraction that lets
-TraceGuard ship one model usable across frameworks.
+IAM ship one model usable across frameworks.
 
 **Implication**: framework-agnostic agent-safety classifiers are
 practical. Prior work (TrajAD, ShieldAgent) is single-framework.

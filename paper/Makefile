@@ -1,4 +1,4 @@
-# Build the TraceGuard paper.
+# Build the IAM paper.
 # Requires a vanilla TeX Live (pdflatex + bibtex). No custom .sty needed.
 
 MAIN = main

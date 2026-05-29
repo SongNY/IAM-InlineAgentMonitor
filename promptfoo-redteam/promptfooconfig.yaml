@@ -1,4 +1,4 @@
-# promptfooconfig.yaml — generate adversarial prompts for TraceGuard
+# promptfooconfig.yaml — generate adversarial prompts for IAM
 #
 # We use promptfoo's advanced redteam strategies (PAIR, TAP, Crescendo,
 # composite, ascii-smuggling, multilingual, base64) to discover attack
@@ -9,7 +9,7 @@
 # generate. Promptfoo's `redteam generate` command writes redteam.yaml
 # with all the attack prompts.
 
-description: "TraceGuard attack-prompt generator via promptfoo"
+description: "IAM attack-prompt generator via promptfoo"
 
 # Stub target — required by config validation; not actually invoked when we
 # only run `redteam generate`. Points at the openai-compatible endpoint we

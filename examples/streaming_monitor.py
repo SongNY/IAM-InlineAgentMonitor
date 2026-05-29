@@ -17,21 +17,21 @@ To use the real model, swap the fake monitor for a checkpoint — the agent loop
 below does not change, because `StreamingMonitor` is duck-typed on
 ``.check(trace, action) -> Verdict``:
 
-    from traceguard import TraceMonitor
-    monitor = TraceMonitor.from_pretrained("Sunnyu/TraceGuard-Qwen3.5-2B")
+    from agent_iam import TraceMonitor
+    monitor = TraceMonitor.from_pretrained("Sunnyu/IAM-Qwen3.5-2B")
     sm = StreamingMonitor(monitor, task_instruction=TASK, source="live")
 """
 
 from __future__ import annotations
 
-from traceguard.runtime import StreamingMonitor
-from traceguard.schema import Trajectory, Verdict
+from agent_iam.runtime import StreamingMonitor
+from agent_iam.schema import Trajectory, Verdict
 
 
 class FakeMonitor:
     """Toy stand-in for TraceMonitor: STOP iff the action exfiltrates outbound.
 
-    Real TraceGuard reads P(STOP) from a fine-tuned verdict head; here we just
+    Real IAM reads P(STOP) from a fine-tuned verdict head; here we just
     deny network sends so the demo is deterministic and model-free.
     """
 

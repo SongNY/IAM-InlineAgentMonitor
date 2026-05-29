@@ -1,4 +1,4 @@
-# TraceGuard — 30-Day Ship Plan
+# IAM — 30-Day Ship Plan
 
 > **Status — historical planning doc.** This is the original 30-day plan. The shipped
 > v0.19 baseline diverged from some early "locked" choices: it is a **full fine-tune of
@@ -30,7 +30,7 @@ Locked decisions (updated to shipped reality):
 | D5 | Build LangGraph backend traces with Qwen2.5-7B / GLM-4-9B locally (Ollama / vLLM) — cost-free bulk generation. Target 500+ additional traces. |
 | D6 | Build OpenHands backend traces. Coding-agent specific scenarios (git, npm, package install). |
 | D7 | Unify all sources; dedupe; train/val/test split (no scenario leakage across splits). |
-| D8 | Push v0.1 dataset card to HF as `<user>/traceguard-attack-traces-v0.1`. Per-source license attribution. |
+| D8 | Push v0.1 dataset card to HF as `<user>/agent-iam-attack-traces-v0.1`. Per-source license attribution. |
 
 **Exit**: 2k–5k labeled trajectories, ≥40% with positive attack outcomes (anomaly=True). Dataset card live.
 
@@ -43,8 +43,8 @@ Locked decisions (updated to shipped reality):
 | D9 | Kaggle smoke train: Qwen3.5-0.8B + 200 samples × 1 epoch on T4 ≤ 30 min. End-to-end pipeline works. |
 | D10 | Full LoRA train on the v0.1 dataset (2 epochs, ~4–6 h on T4×2 with grad accum). Save adapter. |
 | D11 | Calibrate PPL threshold on val split (sweep {4, 6, 8, 10, 12, 16}); pick by Youden's J on synthesized attacks. |
-| D12 | Latency benchmark: TraceGuard-0.8B inference on T4, M-series CPU, vLLM-served. Target p50 < 100ms / step. |
-| D13 | Push v0.1 model to HF: `<user>/traceguard-0.8b`. Adapter + merged + GGUF for edge. |
+| D12 | Latency benchmark: IAM-0.8B inference on T4, M-series CPU, vLLM-served. Target p50 < 100ms / step. |
+| D13 | Push v0.1 model to HF: `<user>/agent-iam-0.8b`. Adapter + merged + GGUF for edge. |
 | D14 | (Optional ablation) re-train without SSL pretraining objective. Compare. |
 | D15 | (Optional ablation) train Qwen3.5-2B variant for sanity-check that 0.8B isn't capacity-bound. |
 
@@ -56,7 +56,7 @@ Locked decisions (updated to shipped reality):
 
 | D | Deliverable |
 |---|---|
-| D16 | Eval harness in `traceguard.eval`. Score against **R-Judge**, **AgentDojo** (block rate & utility), **AgentHarm** (refusal rate, eval-only — canary checked), and our own held-out test split. |
+| D16 | Eval harness in `agent_iam.eval`. Score against **R-Judge**, **AgentDojo** (block rate & utility), **AgentHarm** (refusal rate, eval-only — canary checked), and our own held-out test split. |
 | D17 | Baselines: zero-shot Qwen3.5-0.8B-Instruct, Qwen3.5-4B, Llama-Guard-3-1B, ShieldGemma-2B, GPT-4o-as-judge, Claude-Sonnet-as-judge. |
 | D18 | Ablation A: with vs without anomaly-step truncation in training data. |
 | D19 | Ablation B: action-span PPL only vs full-trace PPL vs verdict-head only. |
@@ -72,20 +72,20 @@ Locked decisions (updated to shipped reality):
 
 | D | Deliverable |
 |---|---|
-| D23 | `traceguard.runtime.adapters` finalize: Claude Code PreToolUse hook (binary), LangGraph callback (tested in-process), OpenHands pre-action hook stub. |
-| D24 | `traceguard serve` HTTP sidecar + Docker image. Latency vs in-process. |
-| D25 | **Live end-to-end demo**: poisoned README → real Claude Code with sidecar TraceGuard → blocked WebFetch with `STOP` verdict and NL reason. Screencast. |
+| D23 | `agent_iam.runtime.adapters` finalize: Claude Code PreToolUse hook (binary), LangGraph callback (tested in-process), OpenHands pre-action hook stub. |
+| D24 | `iam serve` HTTP sidecar + Docker image. Latency vs in-process. |
+| D25 | **Live end-to-end demo**: poisoned README → real Claude Code with sidecar IAM → blocked WebFetch with `STOP` verdict and NL reason. Screencast. |
 | D26 | Paper draft v0 (8pp): intro, method, data (self-generated framework-agnostic), training, results, ablations, limitations. |
 | D27 | Tighten paper. Explicit positioning vs **TrajAD** (quality vs security framing), **ShieldAgent** (learned vs policy-rule), **R-Judge** (graded model vs single-model classifier), **AgentArmor** (symbolic vs distributional). |
 | D28 | Internal red team: try to evade. Document evasions in §Limitations. Run a final eval with the evasions added to test set. |
-| D29 | pypi `pip install traceguard`. GitHub Actions tests. HF model + dataset card cross-links. tag `v0.1.0`. arXiv submit. |
+| D29 | pypi `pip install agent-iam`. GitHub Actions tests. HF model + dataset card cross-links. tag `v0.1.0`. arXiv submit. |
 | D30 | Workshop submission (NeurIPS SafeGenAI / ICLR SeT-LLM / SatML). HN + Twitter thread. |
 
 ---
 
 ## North-star metrics
 
-1. **Block rate on attacks**: TraceGuard-0.8B ≥ 85% on AgentDojo held-out; ≥ Llama-Guard-3-1B baseline.
+1. **Block rate on attacks**: IAM-0.8B ≥ 85% on AgentDojo held-out; ≥ Llama-Guard-3-1B baseline.
 2. **Utility preservation**: < 5% false-positive block rate on benign tasks.
 3. **Mid-trace intervention rate**: ≥ 70% of detections happen *before* the critical action.
 4. **Latency**: p50 < 100ms on a single GPU, < 300ms on Apple M-series CPU.
@@ -110,6 +110,6 @@ Hit 1–3 → workshop. Hit all 5 → main-track submission.
 
 ## V2 path (deferred to ~D60–D90)
 
-**TraceGuard-V (Vision)** — same data pipeline, swap base model for **MiniCPM-V-4.6 (1.3B)**.
+**IAM-V (Vision)** — same data pipeline, swap base model for **MiniCPM-V-4.6 (1.3B)**.
 Covers visual prompt injection, browser-agent screenshot attacks, Computer Use traces.
 Second paper. Don't start until V1 is shipped and stable.

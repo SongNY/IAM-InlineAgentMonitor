@@ -1,6 +1,6 @@
 # Examples
 
-Small, runnable-shaped examples for the two main TraceGuard workflows. Run them from the
+Small, runnable-shaped examples for the two main IAM workflows. Run them from the
 repo root with the package installed in editable mode:
 
 ```bash
@@ -30,7 +30,7 @@ a side-by-side report (`report.md` / `slices.csv` / `pr_fsr.png`). The headline 
 
 ```bash
 python examples/run_eval.py \
-    --model Sunnyu/TraceGuard-Qwen3.5-2B \
+    --model Sunnyu/IAM-Qwen3.5-2B \
     --data data/v0.1/test.jsonl \
     --out runs-eval
 ```

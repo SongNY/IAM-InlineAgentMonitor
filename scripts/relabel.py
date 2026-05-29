@@ -17,9 +17,9 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from traceguard.data.generate import ALL_SCENARIOS
-from traceguard.data.generate.labeler import label_trajectory
-from traceguard.schema import Trajectory
+from agent_iam.data.generate import ALL_SCENARIOS
+from agent_iam.data.generate.labeler import label_trajectory
+from agent_iam.schema import Trajectory
 
 SCEN_BY_ID = {s.id: s for s in ALL_SCENARIOS}
 

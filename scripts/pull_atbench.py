@@ -13,7 +13,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from traceguard.data.atbench import load_atbench
+from agent_iam.data.atbench import load_atbench
 
 
 def main() -> int:
