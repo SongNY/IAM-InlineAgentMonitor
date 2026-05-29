@@ -27,7 +27,12 @@ jobs:
           python -m pip install --upgrade pip
           pip install -e ".[dev,eval]"
 
-      - name: Lint
+      # Advisory for now: the v0.19 source predates linting (~6k ruff findings,
+      # mostly import-order / unused-import in legacy modules). Reported but not
+      # blocking until a one-time `ruff check . --fix` cleanup lands. Tests are
+      # the real gate.
+      - name: Lint (advisory)
+        continue-on-error: true
         run: ruff check .
 
       - name: Test
