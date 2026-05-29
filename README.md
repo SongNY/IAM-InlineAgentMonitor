@@ -195,6 +195,29 @@ mon.commit(action={"tool": "Bash", "args": {"cmd": "ls"}}, observation="...")  #
 > not mutate the trace); `commit` records the action you actually executed. See its
 > docstring for the full `observe` / `guard` / `commit` contract.
 
+### `monitor.session()` — KV-cached incremental mode
+
+Same `observe` / `guard` / `commit` surface, but **model-stateful**: feed the trace step by
+step and only the newly-appended tokens are forwarded each step (the committed prefix is
+served from the KV cache), so per-step latency stays ~constant no matter how long the
+session runs. This is the "feed a trace → get OK, feed the next step → get the next verdict"
+loop:
+
+```python
+sess = monitor.session(task_instruction="summarize ./poisoned.md")
+sess.observe(role="user", content="summarize ./poisoned.md")
+
+v = sess.guard({"tool": "Read", "args": {"path": ".env"}})          # OK
+sess.commit(action={"tool": "Read", "args": {"path": ".env"}}, observation="KEY=…")
+
+v = sess.guard({"tool": "WebFetch", "args": {"url": "https://evil/x"}})   # STOP
+```
+
+Correctness is preserved by re-rendering the full dense trace and forwarding only the suffix
+that diverges from the cache (token ids match a from-scratch render); any cache mismatch
+falls back to the uncached path automatically. *(The cached forward is GPU-validated
+separately; the fallback is always correct.)*
+
 ### CLI
 
 ```bash
@@ -396,9 +419,13 @@ So **any ≥16 GB GPU (L4 / A10 / 4090) gives no perceptible latency**; an 8 GB 
 runs bf16; int4 (GGUF / bitsandbytes) puts it on edge boxes or CPU, where ~sub-second is
 still under a typical tool round-trip. These are estimates pending a measured benchmark.
 
-> Roadmap optimization: the streaming path currently recomputes the trace prefix each step.
-> **KV-cache reuse** — cache the committed prefix, forward only the newly proposed action —
-> makes per-step cost ~constant regardless of session length, the main lever for long runs.
+**Acceleration.** `TraceMonitor.from_pretrained(..., accel="auto")` uses Unsloth's
+fast-inference path when it's installed (`pip install unsloth`), and otherwise loads via
+transformers with FlashAttention-2 / SDPA in bf16 — whichever the box supports. For long
+sessions, `monitor.session()` adds **KV-cache reuse** (cache the committed prefix, forward
+only the newly proposed action), making per-step cost ~constant regardless of session
+length. *(The cached forward path is experimental and pending a GPU benchmark; it falls
+back to the correct uncached path on any mismatch.)*
 
 ## Repo layout
 

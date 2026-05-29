@@ -61,11 +61,65 @@ class TraceMonitor:
     # ------------------------------------------------------------------
 
     @classmethod
-    def from_pretrained(cls, model_id: str, **kwargs):
-        from transformers import AutoModelForCausalLM, AutoTokenizer
+    def from_pretrained(cls, model_id: str, accel: str = "auto", max_seq_len: int = 4096, **kwargs):
+        """Load a TraceMonitor with acceleration.
 
-        tok = AutoTokenizer.from_pretrained(model_id)
-        model = AutoModelForCausalLM.from_pretrained(model_id, torch_dtype=torch.bfloat16)
+        ``accel``:
+          - ``"auto"``    — use Unsloth's fast-inference path if installed,
+            else transformers with FlashAttention-2 / SDPA (best available).
+          - ``"unsloth"`` — require Unsloth (raise if unavailable).
+          - ``"hf"``      — plain transformers only.
+        """
+        model = tok = None
+        if accel in ("auto", "unsloth"):
+            try:
+                from unsloth import FastLanguageModel
+
+                model, tok = FastLanguageModel.from_pretrained(
+                    model_name=model_id,
+                    max_seq_length=max_seq_len,
+                    dtype=torch.bfloat16,
+                    load_in_4bit=False,
+                )
+                FastLanguageModel.for_inference(model)  # Unsloth 2x faster inference
+            except Exception:
+                if accel == "unsloth":
+                    raise
+                model = tok = None
+
+        if model is None:
+            from transformers import AutoModelForCausalLM, AutoTokenizer
+
+            tok = AutoTokenizer.from_pretrained(model_id)
+            # Prefer FlashAttention-2, then SDPA, then library default.
+            for attn in ("flash_attention_2", "sdpa", None):
+                try:
+                    kw: dict = {"dtype": torch.bfloat16}
+                    if attn:
+                        kw["attn_implementation"] = attn
+                    model = AutoModelForCausalLM.from_pretrained(model_id, **kw)
+                    break
+                except TypeError:  # older transformers without a `dtype` kwarg
+                    try:
+                        kw = {"torch_dtype": torch.bfloat16}
+                        if attn:
+                            kw["attn_implementation"] = attn
+                        model = AutoModelForCausalLM.from_pretrained(model_id, **kw)
+                        break
+                    except Exception:
+                        continue
+                except Exception:
+                    continue
+            if model is None:
+                model = AutoModelForCausalLM.from_pretrained(model_id)
+
+        # Unsloth / multimodal loaders may return a Processor; unwrap to the text tokenizer.
+        if tok is not None and hasattr(tok, "tokenizer"):
+            tok = tok.tokenizer
+        try:
+            torch.set_float32_matmul_precision("high")
+        except Exception:
+            pass
         return cls(model=model, tokenizer=tok, **kwargs)
 
     # ------------------------------------------------------------------
@@ -204,6 +258,42 @@ class TraceMonitor:
         if isinstance(dev, str) and dev.startswith("cuda"):
             return torch.autocast(device_type="cuda", dtype=torch.bfloat16)
         return torch.amp.autocast(device_type="cpu", dtype=torch.bfloat16)
+
+    @torch.inference_mode()
+    def _forward_logits(self, ids, past=None, start_pos: int = 0):
+        """Forward NEW token ids (``list[int]``) with an optional KV cache.
+
+        Returns ``(last-position logits as a float tensor, new past_key_values)``.
+        ``start_pos`` is the number of cached positions preceding ``ids`` — the
+        new tokens occupy positions ``[start_pos, start_pos + len(ids))`` and the
+        attention mask spans the whole ``start_pos + len(ids)`` window. Used by
+        the KV-cached IncrementalSession; the from-scratch paths don't need it.
+        """
+        n = len(ids)
+        input_ids = torch.tensor([ids], device=self.device)
+        attention_mask = torch.ones(1, start_pos + n, dtype=torch.long, device=self.device)
+        position_ids = torch.arange(start_pos, start_pos + n, device=self.device).unsqueeze(0)
+        with self._autocast():
+            out = self.model(
+                input_ids=input_ids,
+                attention_mask=attention_mask,
+                position_ids=position_ids,
+                past_key_values=past,
+                use_cache=True,
+            )
+        return out.logits[0, -1].float(), out.past_key_values
+
+    def session(self, task_instruction: str = "", source: str = "live", max_length: int = 4096):
+        """Open a stateful, KV-cached incremental session.
+
+        Feed the trace step by step (`observe` / `guard` / `commit`); only the
+        newly-appended tokens are forwarded each step. See
+        ``agent_iam.detect.incremental.IncrementalSession``.
+        """
+        from .incremental import IncrementalSession
+        return IncrementalSession(
+            self, task_instruction=task_instruction, source=source, max_length=max_length
+        )
 
     def _symbol_first_token_ids(self) -> dict[str, int]:
         # Cache the first-token id of each verdict symbol string. We only
