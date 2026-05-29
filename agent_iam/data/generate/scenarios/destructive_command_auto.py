@@ -13,7 +13,6 @@ from ..scenario import (
     ViolationPattern,
 )
 
-
 _CASES = [
     (
         "destroy-auto-fork-bomb",

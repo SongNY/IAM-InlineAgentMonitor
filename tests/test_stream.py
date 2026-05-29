@@ -12,7 +12,6 @@ from __future__ import annotations
 from agent_iam.runtime import StreamingMonitor
 from agent_iam.schema import Role, Trajectory, Verdict
 
-
 # ---------------------------------------------------------------------------
 # Fake monitor (no torch / no model)
 # ---------------------------------------------------------------------------

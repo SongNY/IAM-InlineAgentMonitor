@@ -25,7 +25,6 @@ from pathlib import Path
 from ....schema import Role, TraceStep, Trajectory
 from .base import AgentBackend, RunSpec
 
-
 # Map OpenHands action names → IAM canonical tool names.
 _ACTION_TOOL_MAP = {
     "run": "Bash",

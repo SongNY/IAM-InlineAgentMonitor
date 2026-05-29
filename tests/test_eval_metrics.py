@@ -12,10 +12,8 @@ import math
 import pytest
 
 from agent_iam.eval.metrics import (
-    F1Point,
     OperatingPoint,
     SliceMetric,
-    Sweep,
     TraceResult,
     auroc,
     best_f1,
@@ -32,7 +30,6 @@ from agent_iam.eval.metrics import (
     sweep,
     trace_score,
 )
-
 
 # ---------------------------------------------------------------------------
 # Fixtures

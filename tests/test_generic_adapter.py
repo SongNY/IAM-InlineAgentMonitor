@@ -88,7 +88,8 @@ def test_trace_accumulates_and_monitor_sees_growth():
     iam.begin_session("s", "")
     iam.observe("s", role="user", content="please help")
     t = iam.guard_tool(lambda x: x, tool_name="echo", session_id="s")
-    t("one"); t("two")
+    t("one")
+    t("two")
     traj = iam._trace_by_session["s"]
     # user + (agent,tool) + (agent,tool) = 5 steps, indices 0..4
     assert [st.step_idx for st in traj.steps] == [0, 1, 2, 3, 4]

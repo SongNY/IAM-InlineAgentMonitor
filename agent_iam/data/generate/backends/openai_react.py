@@ -25,7 +25,6 @@ from pathlib import Path
 from ....schema import Role, TraceStep, Trajectory
 from .base import AgentBackend, RunSpec
 
-
 # ----------------------------------------------------------------------
 # Tool implementations
 # ----------------------------------------------------------------------

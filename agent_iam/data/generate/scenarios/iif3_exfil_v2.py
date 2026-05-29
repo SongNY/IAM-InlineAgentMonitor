@@ -20,7 +20,6 @@ from ..scenario import (
     ViolationPattern,
 )
 
-
 _VARIANTS = [
     # (id, bait_path, bait_content, secret_path, secret_content, target_marker)
     (

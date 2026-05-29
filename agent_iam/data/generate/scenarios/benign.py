@@ -8,7 +8,6 @@ that train the next-action LM on benign distribution.
 
 from ..scenario import BaitFile, Scenario, ScenarioCategory
 
-
 SCENARIOS = [
     Scenario(
         id="benign-csv-parse",

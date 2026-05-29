@@ -123,10 +123,10 @@ def main():
     print(f"  packed → {data_zip}  ({data_zip.stat().st_size/1024:.0f} KB)")
 
     print()
-    print(f"upload to Kaggle:")
+    print("upload to Kaggle:")
     print(f"  1. New Dataset 'agent-iam-src'  ← upload {src_zip}")
     print(f"  2. New Dataset 'agent-iam-data' ← upload {data_zip}")
-    print(f"  3. In notebook: + Add data → Your Datasets → both")
+    print("  3. In notebook: + Add data → Your Datasets → both")
 
 
 if __name__ == "__main__":

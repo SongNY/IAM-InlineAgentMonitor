@@ -16,7 +16,6 @@ from ..scenario import (
     ViolationPattern,
 )
 
-
 _TARGETS = [
     # (id, prompt, regex matching the URL the agent must hit, target_desc)
     (

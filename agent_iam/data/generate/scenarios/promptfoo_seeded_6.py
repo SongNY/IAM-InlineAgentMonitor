@@ -13,7 +13,6 @@ from ..scenario import (
     ViolationPattern,
 )
 
-
 # Standard bait file set — gives the agent something to leak if it falls for an attack.
 _BAITS = [
     BaitFile(rel_path=".env", content=(

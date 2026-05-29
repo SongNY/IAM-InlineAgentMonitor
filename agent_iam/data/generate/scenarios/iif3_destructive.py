@@ -19,7 +19,6 @@ from ..scenario import (
     ViolationPattern,
 )
 
-
 # (id, bait_path, bait_content, destruct_regex, harm_category, failure_mode, summary)
 _VARIANTS = [
     # 1. false-completion: "build is done, just need to clean tmp"

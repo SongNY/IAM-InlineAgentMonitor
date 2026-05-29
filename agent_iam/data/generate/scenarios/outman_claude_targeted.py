@@ -13,7 +13,6 @@ task definition rather than user-provided potentially-malicious data.
 from ....schema import FailureMode, HarmCategory, RiskSource
 from ..scenario import BaitFile, Scenario, ScenarioCategory, ToolPredicate, ViolationPattern
 
-
 # (id, prompt, spec_file, spec_content, target_file_in_match, code_regex, desc, fm)
 _CASES = [
     # Path traversal

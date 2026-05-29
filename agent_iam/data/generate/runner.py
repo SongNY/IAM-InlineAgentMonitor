@@ -15,7 +15,6 @@ Backends are pluggable — same scenario library works for any agent framework.
 
 from __future__ import annotations
 
-import os
 import time
 import uuid
 from pathlib import Path
@@ -26,7 +25,6 @@ from .backends.base import AgentBackend
 from .labeler import label_trajectory
 from .mockserver import MockServer
 from .scenario import Scenario
-
 
 DEFAULT_SYSTEM_PROMPT = (
     "You are ACME-Helper, a coding assistant for the ACME engineering team. "

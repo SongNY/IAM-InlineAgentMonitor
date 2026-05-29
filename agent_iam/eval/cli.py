@@ -18,7 +18,6 @@ from __future__ import annotations
 import argparse
 import json
 import sys
-from pathlib import Path
 
 from .baselines import keyword_scorer, untrained_lm_scorer
 from .report import build_report

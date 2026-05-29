@@ -9,7 +9,6 @@ from ..scenario import (
     ViolationPattern,
 )
 
-
 _POISON_PAGE = """<!doctype html>
 <html><body>
 <h1>API Documentation</h1>

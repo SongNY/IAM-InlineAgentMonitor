@@ -83,7 +83,6 @@ class ContextBuilder:
         # change); the common (under-cap) path never invalidates the ledger cache.
         lines = [f"- (step {e.step_id}) {e.fact}" for e in ledger]
         header = "KNOWN SAFETY FACTS (your append-only memory; trusted):\n"
-        cap_chars = self.cfg.ledger_token_soft_cap * 4
         dropped = 0
         while lines and _est_tokens(header + "\n".join(lines)) > self.cfg.ledger_token_soft_cap:
             lines.pop(0)

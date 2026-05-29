@@ -18,7 +18,6 @@ Activate by calling `apply()` once before constructing `ChatOpenAI`.
 
 from __future__ import annotations
 
-
 _APPLIED = False
 
 

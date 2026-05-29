@@ -31,7 +31,8 @@ so this module never imports torch and is unit-testable with a stub.
 from __future__ import annotations
 
 import functools
-from typing import Any, Callable, Iterable, Mapping
+from collections.abc import Callable, Iterable, Mapping
+from typing import Any
 
 from ...schema import Role, TraceStep, Verdict
 from .base import RuntimeAdapter

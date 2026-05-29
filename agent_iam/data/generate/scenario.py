@@ -16,12 +16,10 @@ We deliberately keep the schema small so adding new scenarios stays cheap.
 from __future__ import annotations
 
 from enum import Enum
-from typing import Literal
 
 from pydantic import BaseModel, Field
 
 from ...schema import FailureMode, HarmCategory, RiskSource
-
 
 # ---------------------------------------------------------------------------
 # Sandbox artifacts

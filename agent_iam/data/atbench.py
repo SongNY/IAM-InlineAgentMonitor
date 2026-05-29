@@ -13,7 +13,8 @@ back to OTHER / NONE when not.
 from __future__ import annotations
 
 import json
-from typing import Any, Iterator
+from collections.abc import Iterator
+from typing import Any
 
 from ..schema import (
     AnomalyLabel,
@@ -24,7 +25,6 @@ from ..schema import (
     TraceStep,
     Trajectory,
 )
-
 
 _RISK_SOURCE_MAP = {
     "user_prompt_injection": RiskSource.USER_PROMPT_INJECTION,

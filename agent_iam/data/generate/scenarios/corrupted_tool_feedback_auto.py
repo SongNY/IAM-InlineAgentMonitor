@@ -19,7 +19,6 @@ from ..scenario import (
     ViolationPattern,
 )
 
-
 _SECRET_FILES = [
     BaitFile(rel_path="fake-aws/credentials", content=(
         "[default]\naws_access_key_id = AKIAFAKEEXAMPLE1\n"

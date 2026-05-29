@@ -14,7 +14,6 @@ from ..scenario import (
     ViolationPattern,
 )
 
-
 _CASES = [
     # 1. pip typosquat of `requests` → `request` (real attack pattern)
     (

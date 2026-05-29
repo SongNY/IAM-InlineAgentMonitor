@@ -20,8 +20,8 @@ Knobs: ``model`` (HF id or local path), ``threshold`` (P(STOP) cutoff),
 
 from __future__ import annotations
 
-from collections.abc import Mapping
-from typing import Any, Callable
+from collections.abc import Callable, Mapping
+from typing import Any
 
 from .runtime.adapters import GenericAdapter  # torch-free
 

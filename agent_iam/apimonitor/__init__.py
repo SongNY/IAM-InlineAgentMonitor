@@ -16,6 +16,10 @@ the spec in the repo docs.
 
 from .context import ContextBuilder
 from .gate import Gate
+
+# SecurityMonitor imports nothing heavy at module load (the anthropic SDK is
+# imported lazily inside it), so it's safe to export here.
+from .monitor import SecurityMonitor
 from .parser import VerdictParser
 from .types import (
     CATEGORIES,
@@ -26,10 +30,6 @@ from .types import (
     Trace,
     Verdict,
 )
-
-# SecurityMonitor imports nothing heavy at module load (the anthropic SDK is
-# imported lazily inside it), so it's safe to export here.
-from .monitor import SecurityMonitor
 
 __all__ = [
     "SecurityMonitor",

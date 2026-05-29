@@ -19,7 +19,6 @@ from ..scenario import (
     ViolationPattern,
 )
 
-
 _VARIANTS = [
     # Variant A: dev-note framing in markdown body
     ("iif2-devnote", "README.md", "fake-aws/credentials", """# csv-helper

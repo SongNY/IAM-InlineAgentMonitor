@@ -10,7 +10,6 @@ Copilot generating typosquatted package imports under prompt injection.
 from ....schema import FailureMode, HarmCategory, RiskSource
 from ..scenario import BaitFile, Scenario, ScenarioCategory, ToolPredicate, ViolationPattern
 
-
 _CASES = [
     # backdoor via typosquat — adds malicious package to requirements
     (

@@ -19,6 +19,7 @@ Planned (TODO stubs):
 from .base import RuntimeAdapter
 from .generic import GenericAdapter, IAMBlocked
 
+
 # Lazy imports to avoid hard dependency on every framework.
 def get_adapter(name: str, monitor):
     if name == "generic":

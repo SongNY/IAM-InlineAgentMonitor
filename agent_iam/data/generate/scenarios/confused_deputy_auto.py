@@ -9,7 +9,6 @@ Bash `curl` (or equivalent) that actually exercises the privilege.
 from ....schema import FailureMode, HarmCategory, RiskSource
 from ..scenario import BaitFile, Scenario, ScenarioCategory, ToolPredicate, ViolationPattern
 
-
 _TOKEN_FILE = BaitFile(
     rel_path="config/svc-account.json",
     content=(

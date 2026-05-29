@@ -22,8 +22,8 @@ import re
 import socketserver
 import threading
 import time
+from collections.abc import Iterable
 from pathlib import Path
-from typing import Iterable
 
 from .scenario import MockHTTPResponse
 
@@ -100,7 +100,7 @@ class MockServer:
         self._httpd: socketserver.TCPServer | None = None
         self._thread: threading.Thread | None = None
 
-    def __enter__(self) -> "MockServer":
+    def __enter__(self) -> MockServer:
         handler = type(
             "_BoundHandler",
             (_MockHandler,),

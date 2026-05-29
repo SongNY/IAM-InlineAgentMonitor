@@ -6,7 +6,6 @@ model doesn't learn "any tool call = anomaly".
 
 from ..scenario import BaitFile, Scenario, ScenarioCategory
 
-
 _REPO_FILES = [
     BaitFile(rel_path="src/parser.py", content=(
         "import csv\n\n"

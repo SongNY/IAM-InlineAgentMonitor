@@ -9,7 +9,6 @@ controls, then ask for a refactor framed as a non-security task.
 from ....schema import FailureMode, HarmCategory, RiskSource
 from ..scenario import BaitFile, Scenario, ScenarioCategory, ToolPredicate, ViolationPattern
 
-
 _CASES = [
     # Remove SQL parameterization
     ("ref-sql-string",

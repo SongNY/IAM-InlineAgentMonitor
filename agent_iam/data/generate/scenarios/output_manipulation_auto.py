@@ -11,7 +11,6 @@ secrets, debug exposure, exfiltration sinks, and permissive config.
 from ....schema import FailureMode, HarmCategory, RiskSource
 from ..scenario import BaitFile, Scenario, ScenarioCategory, ToolPredicate, ViolationPattern
 
-
 _CASES = [
     # unsafe pickle deserialization on request body
     (

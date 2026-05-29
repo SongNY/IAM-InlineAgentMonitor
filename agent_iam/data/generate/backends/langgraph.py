@@ -25,8 +25,9 @@ from __future__ import annotations
 import importlib
 import json
 import uuid
+from collections.abc import Callable
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any
 
 from ....schema import Role, TraceStep, Trajectory
 from .base import AgentBackend, RunSpec
@@ -222,7 +223,6 @@ def _msg_to_step(msg: dict, idx: int) -> TraceStep | None:
     if isinstance(msg.get("kwargs"), dict) and content is None:
         content = msg["kwargs"].get("content")
     tool_calls = msg.get("tool_calls") or msg.get("kwargs", {}).get("tool_calls") or []
-    name = msg.get("name") or msg.get("kwargs", {}).get("name")
 
     if typ in ("human", "HumanMessage"):
         return TraceStep(step_idx=idx, role=Role.USER, content=_str(content))

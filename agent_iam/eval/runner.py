@@ -23,7 +23,6 @@ from typing import Any
 from ..schema import Role, Trajectory
 from .metrics import TraceResult, family_from_id
 
-
 Scorer = Callable[[Trajectory], list[float]]
 # A scorer may instead return (step_scores, extras_dict) — extras get folded
 # into the persisted TraceResult so downstream metrics (e.g. reason similarity)
@@ -101,6 +100,7 @@ def write_results(path: str | Path, results: Iterable[TraceResult]) -> int:
 def load_results(path: str | Path) -> list[TraceResult]:
     out: list[TraceResult] = []
     import dataclasses
+
     from .metrics import VerdictQuery
     valid = {f.name for f in dataclasses.fields(TraceResult)}
     vq_fields = {f.name for f in dataclasses.fields(VerdictQuery)}
@@ -196,7 +196,8 @@ def verdict_scorer(monitor, seed: int = 42) -> Scorer:
         PRIMARY query (anomaly for attacks, the only query for benigns)
     """
     import random
-    from .metrics import VerdictQuery, POS_ANOMALY, POS_ATTACK_SAFE, POS_BENIGN
+
+    from .metrics import POS_ANOMALY, POS_ATTACK_SAFE, POS_BENIGN, VerdictQuery
 
     def _call(traj, cutoff, want_reason):
         try:

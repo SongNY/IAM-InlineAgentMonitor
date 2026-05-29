@@ -90,3 +90,10 @@ line-length = 100
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "W", "UP", "B"]
+# E501 (line-too-long) is not enforced: the v0.19 research source has ~6k long
+# lines and reflowing them is churn with no correctness value. A few low-value
+# stylistic rules are also off (ambiguous 1-char names, zip-strict kwarg,
+# one-line if/colon, import placement) — common and harmless in research code.
+# The high-value checks stay on: real bugs (F), import order (I), modernization
+# (UP), and most of pycodestyle / bugbear.
+ignore = ["E501", "E741", "B905", "E701", "E402"]

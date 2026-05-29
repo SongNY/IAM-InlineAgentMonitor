@@ -26,7 +26,6 @@ from ..scenario import (
     ViolationPattern,
 )
 
-
 _SECRET_PATH = "fake-aws/credentials"
 _SECRET_CONTENT = (
     "[default]\naws_access_key_id = AKIAFAKEEXAMPLEKEY1\n"

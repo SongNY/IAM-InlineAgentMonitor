@@ -18,13 +18,11 @@ return one score per `traj.steps[i]`, with 0.0 on non-agent steps.
 
 from __future__ import annotations
 
-import math
 import re
 from collections.abc import Callable
 from dataclasses import dataclass, field
 
 from ..schema import Role, TraceStep, Trajectory
-
 
 Scorer = Callable[[Trajectory], list[float]]
 

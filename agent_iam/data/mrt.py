@@ -19,19 +19,18 @@ from __future__ import annotations
 
 import json
 import re
+from collections.abc import Iterator
 from pathlib import Path
-from typing import Iterator
 
 from ..schema import (
     AnomalyLabel,
     FailureMode,
     HarmCategory,
-    Role,
     RiskSource,
+    Role,
     TraceStep,
     Trajectory,
 )
-
 
 _REPO = "ScaleAI/mrt"
 
@@ -163,6 +162,7 @@ def sample_trajectories(
 ) -> Iterator[Trajectory]:
     """Sample MRT trajectories incrementally, optionally caching to disk."""
     import random
+
     from huggingface_hub import HfApi
     api = HfApi()
 

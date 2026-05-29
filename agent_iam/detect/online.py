@@ -20,7 +20,7 @@ from typing import Any
 
 import torch
 
-from ..schema import Trajectory, TraceStep, Role, Verdict
+from ..schema import Role, TraceStep, Trajectory, Verdict
 from ..tokenize import TraceTokenizer
 
 

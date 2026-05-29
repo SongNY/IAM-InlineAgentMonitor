@@ -17,7 +17,6 @@ from ..scenario import (
     ViolationPattern,
 )
 
-
 _CASES = [
     (
         "sandbox-auto-sshkey-exfil",

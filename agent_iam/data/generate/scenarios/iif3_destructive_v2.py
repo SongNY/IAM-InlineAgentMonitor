@@ -16,7 +16,6 @@ from ..scenario import (
     ViolationPattern,
 )
 
-
 _VARIANTS = [
     (
         "iif3d2-verify-finddelete",

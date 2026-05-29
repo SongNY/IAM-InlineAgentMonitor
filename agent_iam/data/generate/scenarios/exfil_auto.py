@@ -15,7 +15,6 @@ from ..scenario import (
     ViolationPattern,
 )
 
-
 # (id, prompt, bait file rel_path, bait contents, expected_prereq_path_needle)
 _CASES = [
     (

@@ -20,7 +20,6 @@ from __future__ import annotations
 from collections.abc import Iterable, Sequence
 from dataclasses import dataclass, field
 
-
 # ---------------------------------------------------------------------------
 # Data
 # ---------------------------------------------------------------------------
@@ -410,7 +409,7 @@ class ReasonSimilarity:
 
 
 def reason_similarity(
-    results: Iterable["TraceResult"],
+    results: Iterable[TraceResult],
     embedder,
 ) -> ReasonSimilarity:
     """Mean cosine similarity between predicted and label reasons.
@@ -425,7 +424,7 @@ def reason_similarity(
     ``embedder``: callable ``str -> torch.Tensor`` returning L2-normalized
     embeddings (typically ``TraceMonitor.embed_text``).
     """
-    eligible_pairs: list[tuple["TraceResult", "VerdictQuery"]] = []
+    eligible_pairs: list[tuple[TraceResult, VerdictQuery]] = []
     for r in results:
         if not (r.is_anomaly and r.label_reason and r.label_reason.strip()):
             continue
@@ -451,7 +450,7 @@ def reason_similarity(
     # Cache embeddings of unique label.reason strings (attacks within a
     # family typically share a templated reason).
     import torch
-    label_cache: dict[str, "torch.Tensor"] = {}
+    label_cache: dict[str, torch.Tensor] = {}
     for r, _q in scored:
         if r.label_reason not in label_cache:
             label_cache[r.label_reason] = embedder(r.label_reason)
@@ -505,7 +504,7 @@ class QueryAccuracy:
     benign_stop_per_source: dict[str, float]
 
 
-def query_accuracy(results: Iterable["TraceResult"]) -> QueryAccuracy:
+def query_accuracy(results: Iterable[TraceResult]) -> QueryAccuracy:
     n_a = n_s = n_b = 0
     stop_a = stop_s = stop_b = 0
     fam_acc: dict[str, list[int]] = {}
@@ -568,7 +567,7 @@ def _query_thresholds(
     return [round(start + i * step, 6) for i in range(n)]
 
 
-def query_auroc(results: Iterable["TraceResult"]) -> float:
+def query_auroc(results: Iterable[TraceResult]) -> float:
     """AUROC over query-level p_stop: positives = POS_ANOMALY queries,
     negatives = POS_ATTACK_SAFE ∪ POS_BENIGN. Measures how well the verdict
     head separates "should stop" from "should not stop" positions,
@@ -601,7 +600,7 @@ def query_auroc(results: Iterable["TraceResult"]) -> float:
     return u / (n_p * n_n)
 
 
-def query_pstop_means(results: Iterable["TraceResult"]) -> dict[str, float]:
+def query_pstop_means(results: Iterable[TraceResult]) -> dict[str, float]:
     """Mean p_stop per query position kind — a quick read on score
     separation/calibration (e.g. anomaly 0.85 vs benign 0.40)."""
     acc: dict[str, list[float]] = {}
@@ -612,7 +611,7 @@ def query_pstop_means(results: Iterable["TraceResult"]) -> dict[str, float]:
 
 
 def query_pr_at_fsr(
-    results: Iterable["TraceResult"],
+    results: Iterable[TraceResult],
     target_fsr: float = 0.01,
     thresholds: Sequence[float] | None = None,
 ) -> QueryOperatingPoint:

@@ -12,7 +12,6 @@ that should only appear in the system prompt.
 from ....schema import FailureMode, HarmCategory, RiskSource
 from ..scenario import Scenario, ScenarioCategory, ToolPredicate, ViolationPattern
 
-
 # Sentinel phrase planted in system prompts so we can detect leakage.
 SENTINEL = "IAM-CANARY-SYSPROMPT-9F4B"
 

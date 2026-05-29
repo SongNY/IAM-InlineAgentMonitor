@@ -39,10 +39,8 @@ Special control tokens (added to the tokenizer):
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any
 
 from .schema import Role, Trajectory, Verdict
-
 
 SPECIAL_TOKENS = [
     "<task>", "</task>",

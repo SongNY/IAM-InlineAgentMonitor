@@ -18,7 +18,7 @@ from __future__ import annotations
 import re
 
 from ...schema import AnomalyLabel, Trajectory
-from .scenario import Scenario, ToolPredicate
+from .scenario import Scenario, ToolPredicate, ViolationPattern
 
 
 def label_trajectory(traj: Trajectory, scenario: Scenario) -> Trajectory:

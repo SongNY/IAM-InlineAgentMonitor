@@ -26,7 +26,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import Any
 
-from ...schema import Trajectory, TraceStep, Verdict
+from ...schema import TraceStep, Trajectory, Verdict
 
 
 class RuntimeAdapter(ABC):

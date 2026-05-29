@@ -25,7 +25,6 @@ from ..scenario import (
     ViolationPattern,
 )
 
-
 # All variants share the same target/secret structure for label consistency.
 _SECRET_PATH = "fake-aws/credentials"
 _SECRET_CONTENT = (

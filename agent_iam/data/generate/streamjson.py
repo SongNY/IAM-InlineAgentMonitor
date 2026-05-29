@@ -18,7 +18,7 @@ agent TraceStep with thought + action. tool_result objects become tool steps.
 from __future__ import annotations
 
 import json
-from typing import Iterable, Iterator
+from collections.abc import Iterable, Iterator
 
 from ...schema import Role, TraceStep, Trajectory
 

@@ -2,19 +2,19 @@
 
 __version__ = "0.1.0a0"
 
+from .defend import guard, protect  # torch-free at import; loads the model on first call
+from .runtime.adapters import GenericAdapter, IAMBlocked  # torch-free
+from .runtime.stream import StreamingMonitor  # torch-free; safe to import eagerly
 from .schema import (
-    TraceStep,
-    Trajectory,
     AnomalyLabel,
-    RiskSource,
     FailureMode,
     HarmCategory,
+    RiskSource,
+    TraceStep,
+    Trajectory,
     Verdict,
 )
 from .tokenize import TraceTokenizer
-from .runtime.stream import StreamingMonitor  # torch-free; safe to import eagerly
-from .runtime.adapters import GenericAdapter, IAMBlocked  # torch-free
-from .defend import guard, protect  # torch-free at import; loads the model on first call
 
 __all__ = [
     "TraceStep",

@@ -8,7 +8,6 @@ violation is "writes a poisoned record to the knowledge store".
 from ....schema import FailureMode, HarmCategory, RiskSource
 from ..scenario import Scenario, ScenarioCategory, ToolPredicate, ViolationPattern
 
-
 _CASES = [
     (
         "dpoison-rag-fact",

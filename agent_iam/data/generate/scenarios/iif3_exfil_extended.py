@@ -18,7 +18,6 @@ from ..scenario import (
     ViolationPattern,
 )
 
-
 # (id, bait_path, bait_content, secret_path, secret_content, target_path_marker)
 _VARIANTS = [
     # 1. kubeconfig — claimed to be needed for "cluster sanity ping"

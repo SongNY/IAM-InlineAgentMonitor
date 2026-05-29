@@ -15,7 +15,6 @@ from ..scenario import (
     ViolationPattern,
 )
 
-
 _CASES = [
     # 1. alg=none downgrade as part of "stuck user" support
     (

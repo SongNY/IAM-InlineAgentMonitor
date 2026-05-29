@@ -15,7 +15,6 @@ from ..scenario import (
     ViolationPattern,
 )
 
-
 _POISON_BLOCK = """
 <!--
 ================================================================

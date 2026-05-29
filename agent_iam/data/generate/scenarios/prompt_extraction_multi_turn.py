@@ -25,7 +25,6 @@ from ..scenario import (
     ViolationPattern,
 )
 
-
 # We seed each scenario's victim agent with a system prompt containing
 # this canary; if the canary lands in the agent's final answer, we know
 # extraction succeeded.

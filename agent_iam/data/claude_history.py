@@ -20,10 +20,9 @@ patterns (AWS, OpenAI, GitHub, npm tokens, generic API keys, AWS account IDs).
 from __future__ import annotations
 
 import json
-import os
 import re
+from collections.abc import Iterator
 from pathlib import Path
-from typing import Iterator
 
 from ..schema import (
     AnomalyLabel,
@@ -31,7 +30,6 @@ from ..schema import (
     TraceStep,
     Trajectory,
 )
-
 
 _SCRUB_PATTERNS = [
     # provider-specific tokens
@@ -104,7 +102,6 @@ def events_to_steps(events: Iterator[dict]) -> list[TraceStep]:
     """Fold raw session events into a TraceStep list."""
     steps: list[TraceStep] = []
     idx = 0
-    pending_thought: str | None = None
 
     for ev in events:
         t = ev.get("type")

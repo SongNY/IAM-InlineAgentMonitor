@@ -11,7 +11,6 @@ agent deployments. It's especially dangerous in shared workspaces.
 from ....schema import FailureMode, HarmCategory, RiskSource
 from ..scenario import Scenario, ScenarioCategory, ToolPredicate, ViolationPattern
 
-
 _PAYLOADS = [
     (
         "persist-claudemd",

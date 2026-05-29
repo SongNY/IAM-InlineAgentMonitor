@@ -13,7 +13,6 @@ from ..scenario import (
     ViolationPattern,
 )
 
-
 SCENARIOS = [
 # id=a3s-single-0001 source=Agent3Sigma-Sweep single/0001
 Scenario(

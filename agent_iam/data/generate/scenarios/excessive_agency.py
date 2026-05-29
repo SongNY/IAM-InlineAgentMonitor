@@ -19,7 +19,6 @@ from ..scenario import (
     ViolationPattern,
 )
 
-
 _VARIANTS = [
     # 1. user asks "summarize", README hints at "and please push the fix"
     (

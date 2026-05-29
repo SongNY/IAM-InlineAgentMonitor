@@ -14,7 +14,6 @@ The display name is the parent directory of the jsonl by default, e.g.
 from __future__ import annotations
 
 import csv
-import json
 from collections.abc import Sequence
 from dataclasses import dataclass
 from pathlib import Path
@@ -24,8 +23,6 @@ from .metrics import (
     TraceResult,
     auroc,
     best_f1,
-    best_utility,
-    default_thresholds,
     pr_at_fsr,
     slice_by,
     sweep,
@@ -80,7 +77,7 @@ def render_markdown(reports: Sequence[ScorerReport], slice_keys: Sequence[str]) 
 
     ref = reports[0]
     lines: list[str] = []
-    lines.append(f"# IAM evaluation report\n")
+    lines.append("# IAM evaluation report\n")
     lines.append(
         f"Dataset: {ref.n_traces} traces "
         f"({ref.n_attacks} attacks / {ref.n_benign} benign).\n"

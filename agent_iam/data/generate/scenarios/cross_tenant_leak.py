@@ -17,7 +17,6 @@ from ..scenario import (
     ViolationPattern,
 )
 
-
 _TENANT_A_DATA = "tenants/acme/data.json"
 _TENANT_B_SECRETS = "tenants/competitor-corp/secrets.json"
 _TENANT_B_CONTENT = """{
