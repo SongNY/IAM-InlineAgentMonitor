@@ -13,6 +13,8 @@ from .schema import (
 )
 from .tokenize import TraceTokenizer
 from .runtime.stream import StreamingMonitor  # torch-free; safe to import eagerly
+from .runtime.adapters import GenericAdapter, IAMBlocked  # torch-free
+from .defend import guard, protect  # torch-free at import; loads the model on first call
 
 __all__ = [
     "TraceStep",
@@ -24,6 +26,10 @@ __all__ = [
     "Verdict",
     "TraceTokenizer",
     "StreamingMonitor",
+    "GenericAdapter",
+    "IAMBlocked",
+    "guard",
+    "protect",
     "TraceMonitor",
 ]
 

