@@ -65,10 +65,10 @@ all = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/songningyu/agent-iam"
-Repository = "https://github.com/songningyu/agent-iam"
-Issues = "https://github.com/songningyu/agent-iam/issues"
-Changelog = "https://github.com/songningyu/agent-iam/blob/main/CHANGELOG.md"
+Homepage = "https://github.com/SongNY/IAM-InlineAgentMonitor"
+Repository = "https://github.com/SongNY/IAM-InlineAgentMonitor"
+Issues = "https://github.com/SongNY/IAM-InlineAgentMonitor/issues"
+Changelog = "https://github.com/SongNY/IAM-InlineAgentMonitor/blob/main/CHANGELOG.md"
 Paper = "https://arxiv.org/abs/TBD"
 
 [project.scripts]

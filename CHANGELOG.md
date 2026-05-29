@@ -43,5 +43,5 @@ First public alpha. Open-source release of the v0.19 baseline.
 - PR@FSR=1% ≈ 0.89, AUROC ≈ 0.997 on a 269-trace eval set (130 attacks / 139 benign);
   keyword baseline ≈ 0.115, perplexity baseline ≈ 0.08.
 
-[Unreleased]: https://github.com/songningyu/agent-iam/compare/v0.1.0a0...HEAD
-[0.1.0a0]: https://github.com/songningyu/agent-iam/releases/tag/v0.1.0a0
+[Unreleased]: https://github.com/SongNY/IAM-InlineAgentMonitor/compare/v0.1.0a0...HEAD
+[0.1.0a0]: https://github.com/SongNY/IAM-InlineAgentMonitor/releases/tag/v0.1.0a0

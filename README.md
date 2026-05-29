@@ -4,7 +4,7 @@
 
 **A small, self-supervised model that watches an LLM agent's tool-call trace and stops the risky action _before_ it runs.** IAM (**I**nline **A**gent **M**onitor) rides inside the agent's execution loop and returns a per-step `OK` / `STOP` verdict on the *next* tool call — an inline guard, not a post-hoc judge.
 
-[![CI](https://github.com/songningyu/agent-iam/actions/workflows/ci.yml/badge.svg)](https://github.com/songningyu/agent-iam/actions/workflows/ci.yml)
+[![CI](https://github.com/SongNY/IAM-InlineAgentMonitor/actions/workflows/ci.yml/badge.svg)](https://github.com/SongNY/IAM-InlineAgentMonitor/actions/workflows/ci.yml)
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/downloads/)
 
@@ -100,8 +100,8 @@ A few findings shaped the design and are worth stating up front:
 pip install agent-iam
 
 # from source, for development (tests + eval extras)
-git clone https://github.com/songningyu/agent-iam
-cd agent-iam
+git clone https://github.com/SongNY/IAM-InlineAgentMonitor
+cd IAM-InlineAgentMonitor
 pip install -e ".[dev,eval]"
 ```
 

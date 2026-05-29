@@ -9,8 +9,8 @@ adapters for additional agent frameworks, and documentation.
 IAM targets Python 3.10+.
 
 ```bash
-git clone https://github.com/songningyu/agent-iam
-cd agent-iam
+git clone https://github.com/SongNY/IAM-InlineAgentMonitor
+cd IAM-InlineAgentMonitor
 pip install -e ".[dev,eval]"
 ```
 
